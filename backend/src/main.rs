@@ -1,4 +1,4 @@
-//программа управления контингентом обучающихся
+// программа управления контингентом обучающихся
 
 use actix_web::{
     delete, dev::Response, get, post, put, web, App, HttpResponse, HttpServer, Responder,
