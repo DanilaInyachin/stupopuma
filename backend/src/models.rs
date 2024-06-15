@@ -1,5 +1,14 @@
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
+use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+use actix_web::web::Json;
+use actix_multipart::Multipart;
+
+use sqlx::PgPool;
+use dotenv::dotenv;
+use std::env;
+use sha2::{Sha256, Digest};
+use std::io::Write;
 
 #[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct User {
@@ -58,12 +67,6 @@ pub struct RegisterUserCourses {
     pub nameCourses: String,
 }
 
-// #[derive(Serialize, Deserialize, Debug)]
-// pub struct AddUserDocuments {
-//     pub mail: String,
-//     pub token: String,
-//     pub enrollment: bool,
-// }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddPrepodCourses {
@@ -89,3 +92,15 @@ pub struct DeleteUserAdmin {
     pub token: String,
     pub mail: String,
 }
+
+#[derive(Debug, serde::Deserialize)]
+pub struct UploadDocument {
+    pub token: String,
+    pub file_name: String, 
+ 
+}
+
+pub struct AppState {
+    pub db_pool: PgPool,
+}
+
