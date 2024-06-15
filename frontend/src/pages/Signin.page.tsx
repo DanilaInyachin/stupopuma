@@ -17,7 +17,7 @@ import FormInput from '../components/FormInput';
 import styled from '@emotion/styled';
 import { LoadingButton } from '@mui/lab';
 import { useTranslation } from 'react-i18next';
-import i18n from 'i18next';
+import axios from 'axios';
 
 // 👇 Styled React Route Dom Link Component
 export const LinkItem = styled(Link)`
@@ -80,6 +80,14 @@ const SigninPage: FC = () => {
   // 👇 Submit Handler
   const onSubmitHandler: SubmitHandler<ILogin> = (values: ILogin) => {
     console.log(values);
+    axios
+      .post('//localhost:8080/login', {
+        mail: values.email,
+        password: values.password,
+      })
+      .then((response) => {
+        console.log(response.data);
+      });
   };
 
   // 👇 JSX to be rendered
