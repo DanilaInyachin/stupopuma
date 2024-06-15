@@ -1,0 +1,18 @@
+{
+    "en": {
+        "translation": {
+            "Signin": "Log into your account",
+            "Enter email": "Enter your email",
+            "Password": "Password",
+            "Trust": "Trust this device",
+            "Login": "Login",
+            "Need an account": "Need an account?",
+            "Email is required": "Email is required",
+            "Email is invalid": "Email is invalid",
+            "Password is required": "Password is required",
+            "Password must be more": "Password must be more than 6 characters",
+            "Password must be less": "Password must be less than 32 characters",
+            "Sign up": "Sign up here"
+        }
+    }
+}
