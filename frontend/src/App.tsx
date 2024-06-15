@@ -1,24 +1,39 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import SigninPage from './pages/Signin.page';
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+const theme = createTheme();
 
 function App() {
+  const [isI18NInitialized, setIsI18NInitialized] = useState<boolean>(false);
+  const [lang] = useState<string>('ru');
+
+  useEffect(() => {
+    i18n.use(initReactI18next).init({
+      lng: lang,
+      resources: require(`./i18n/${lang}.json`),
+      fallbackLng: lang
+    }).then(() => {
+      setIsI18NInitialized(true);
+    })
+  }, [lang]);
+
+  if (!isI18NInitialized) {
+    return <div>Loading...</div>
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Routes>
+          <Route path="/" element={<SigninPage />} />
+          <Route path="/about" element={<SigninPage />} />
+        </Routes>
+      </ThemeProvider>
     </div>
   );
 }
