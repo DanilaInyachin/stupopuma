@@ -1,18 +1,28 @@
 // программа управления контингентом обучающихся
 
 use actix_web::{
-    delete, dev::Response, get, post, put, web, App, HttpResponse, HttpServer, Responder,
+    delete, get, post, put, web, App, HttpResponse, HttpServer, Responder, Error
 };
 use bcrypt::{hash, verify, DEFAULT_COST};
 use dotenv::dotenv;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use std::env;
+use actix_multipart::Multipart;
+use futures::{StreamExt, TryStreamExt};
+use sha2::{Sha256, Digest};
+use uuid::Uuid;
+
+use std::fs::File;
+use std::io::{self, Write};
+use std::fs;
+
+
 
 mod models;
 use models::{
     AddCourses, AddPrepodCourses, CangeUserEnrollment, ChangePrepodCourses, DeleteUser, LoginUser,
-    RegisterUser, RegisterUserCourses, Token, User, СhangeUserData, СhangeUserRole, DeleteUserAdmin
+    RegisterUser, RegisterUserCourses, Token, User, СhangeUserData, СhangeUserRole, DeleteUserAdmin, UploadDocument
 };
 
 #[post("/register")]
@@ -232,46 +242,6 @@ async fn change_user_enrollment(
     }
 }
 
-// #[post("/add_user_documents")]
-// async fn add_user_documents(user: web::Json<AddUserDocuments>, db_pool: web::Data<PgPool>) -> impl Responder {
-
-//     let result = sqlx::query!(
-//         "SELECT id, role FROM users WHERE mail = $1",
-//         user.token,
-//     )
-//     .fetch_one(&**db_pool)
-//     .await;
-
-//     let course_response = sqlx::query!(
-//         "SELECT id FROM courses WHERE namecourses = $1",
-//         user.nameCourses,
-//     )
-//     .fetch_one(&**db_pool)
-//     .await;
-
-//     match (result, course_response) {
-//         (Ok(user_data), Ok(course_data)) => {
-//             if user_data.role == "Ученик" {
-//                 let insert_result = sqlx::query!(
-//                     "INSERT INTO listcourses (users_id, courses_id) VALUES ($1, $2);",
-//                     user_data.id,
-//                     course_data.id,
-//                 )
-//                 .execute(&**db_pool)
-//                 .await;
-
-//                 match insert_result {
-//                     Ok(_) => HttpResponse::Ok().body("New course added"),
-//                     Err(_) => HttpResponse::InternalServerError().body("Ошибка при добавлении курса"),
-//                 }
-//             } else {
-//                 HttpResponse::Forbidden().body("Пользователь не имеет прав для добавления курса")
-//             }
-//         },
-//         _ => HttpResponse::InternalServerError().body("Ошибка при получении данных пользователя или курса"),
-//     }
-// }
-
 #[put("/add_prepod_courses")]
 async fn add_prepod_courses(
     user: web::Json<AddPrepodCourses>,
@@ -435,6 +405,53 @@ async fn delete_user_admin(user: web::Json<DeleteUserAdmin>, db_pool: web::Data<
 }
 
 
+
+
+#[post("/upload_documents")]
+async fn upload_documents(mut payload: Multipart, db_pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
+    // Переменная для хранения имени загружаемого файла
+    let mut file_name = String::new();
+
+    // Обрабатываем каждый частичный поток данных (файлы)
+    while let Some(mut field) = payload.try_next().await? {
+        // Генерируем уникальное имя файла на основе UUID и сохраняем расширение
+        let content_type = field.content_type().type_().as_str();
+        let file_extension = match content_type {
+            "image" => ".jpg",
+            "text" => ".txt",
+            "application" => ".bin",
+            _ => ".dat", // по умолчанию
+        };
+
+        let new_file_name = Uuid::new_v4().to_string() + file_extension;
+        file_name = new_file_name.clone();
+
+        // Создаем путь для сохранения файла
+        let file_path = format!("./uploads/{}", &new_file_name);
+
+        // Создаем файл и записываем в него данные
+        let mut f = web::block(move || fs::File::create(&file_path)).await??;
+
+        // Пишем данные в файл
+        while let Some(chunk) = field.try_next().await? {
+            f = web::block(move || {
+                f.write_all(&chunk).map(|_| f)
+            }).await??;
+        }
+    }
+
+    // Сохраняем имя файла в базе данных
+    let _ = sqlx::query!(
+        "INSERT INTO documents (namedocuments) VALUES ($1)",
+        &file_name
+    )
+    .execute(&**db_pool)
+    .await;
+
+    Ok(HttpResponse::Ok().body("mission complete"))
+}
+
+
 pub struct AppState {
     db: PgPool,
 }
@@ -462,6 +479,9 @@ async fn main() -> std::io::Result<()> {
             .service(change_prepod_courses)
             .service(delete_user)
             .service(delete_user_admin)
+            //.service(upload_document)
+            .app_data(web::Data::new(db_pool.clone()))
+            //.service(upload_document)
     })
     .bind("127.0.0.1:8080")?
     .run()
