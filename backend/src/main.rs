@@ -12,11 +12,10 @@ use actix_multipart::Multipart;
 use futures::{StreamExt, TryStreamExt};
 use sha2::{Sha256, Digest};
 use uuid::Uuid;
-
 use std::fs::File;
 use std::io::{self, Write};
 use std::fs;
-
+use actix_cors::Cors;
 
 
 mod models;
@@ -456,17 +455,23 @@ pub struct AppState {
     db: PgPool,
 }
 
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
+    
+    // Получаем URL базы данных из переменной окружения
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    
+    // Создаем пул подключений к базе данных
     let db_pool = PgPool::connect(&database_url)
         .await
         .expect("Failed to create pool");
 
+    // Создаем и запускаем HTTP сервер
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(db_pool.clone()))
+            .app_data(web::Data::new(db_pool.clone())) // Передаем пул подключений в приложение
             .service(register_user)
             .service(login_user)
             .service(change_user_data)
@@ -479,11 +484,21 @@ async fn main() -> std::io::Result<()> {
             .service(change_prepod_courses)
             .service(delete_user)
             .service(delete_user_admin)
-            //.service(upload_document)
-            .app_data(web::Data::new(db_pool.clone()))
-            //.service(upload_document)
+            .wrap(
+                Cors::default()
+                    .allow_any_origin()
+                    .allow_any_method()
+                    .allow_any_header()
+                    .supports_credentials()
+            )
+            .route("/login", web::post().to(login_handler)) // Регистрируем маршрут для логина
     })
-    .bind("127.0.0.1:8080")?
-    .run()
+    .bind("127.0.0.1:8080")? // Привязываем сервер к адресу и порту
+    .run() // Запускаем сервер
     .await
+}
+
+// Обработчик для логина
+async fn login_handler() -> impl Responder {
+    "Login handler"
 }

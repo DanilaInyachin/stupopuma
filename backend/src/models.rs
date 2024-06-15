@@ -104,3 +104,8 @@ pub struct AppState {
     pub db_pool: PgPool,
 }
 
+#[derive(serde::Deserialize)]
+struct LoginForm {
+    mail: String,
+    password: String,
+}
