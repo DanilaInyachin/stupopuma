@@ -1,9 +1,9 @@
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import SigninPage from './pages/Signin.page';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import SigninPage from './pages/Signin.page';
 
 const theme = createTheme();
 
