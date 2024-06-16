@@ -21,7 +21,12 @@
             "Sign in": "Login",
             "Sign up": "Sign up here",
             "Welcome": "Welcome to StuPopuMa",
-            "Create account": "Create new your account"
+            "Create account": "Create new your account",
+
+            "User profile": "User profile",
+            "General info": "General info",
+            "All courses": "All courses",
+            "Followed courses": "Followed courses"
         }
     }
 }

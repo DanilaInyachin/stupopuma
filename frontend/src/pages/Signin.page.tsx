@@ -79,7 +79,6 @@ const SigninPage: FC = () => {
 
   // 👇 Submit Handler
   const onSubmitHandler: SubmitHandler<ILogin> = async (values: ILogin) => {
-    console.log(values);
     try {
       const response = await axios.post('//localhost:8080/login', {
         mail: values.email,
