@@ -13,7 +13,7 @@ import { object, string, TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FormInput from '../components/FormInput';
 import styled from '@emotion/styled';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 
@@ -49,6 +49,7 @@ export const OauthMuiLink = styled(MuiLink)`
 
 const SignupPage: FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   // 👇 SignUp Schema with Zod
   const signupSchema = object({
@@ -81,13 +82,13 @@ const SignupPage: FC = () => {
 
   // 👇 Form Handler
   const onSubmitHandler: SubmitHandler<ISignUp> = async (values: ISignUp) => {
-    console.log(JSON.stringify(values, null, 4));
     try {
       const response = await axios.post('//localhost:8080/register', {
         mail: values.email,
         password: values.password,
       });
       console.log(response.data);
+      navigate('/profile');
     } catch (error) {
       console.error('Error: ', error);
     }
