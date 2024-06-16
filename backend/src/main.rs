@@ -1,26 +1,25 @@
 // программа управления контингентом обучающихся
 
-use actix_web::{
-    delete, get, post, put, web, App, HttpResponse, HttpServer, Responder, Error
-};
+use actix_cors::Cors;
+use actix_multipart::Multipart;
+use actix_web::{delete, get, post, put, web, App, Error, HttpResponse, HttpServer, Responder};
 use bcrypt::{hash, verify, DEFAULT_COST};
 use dotenv::dotenv;
+use futures::{StreamExt, TryStreamExt};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use sqlx::PgPool;
 use std::env;
-use actix_multipart::Multipart;
-use futures::{StreamExt, TryStreamExt};
-use sha2::{Sha256, Digest};
-use uuid::Uuid;
+use std::fs;
 use std::fs::File;
 use std::io::{self, Write};
-use std::fs;
-use actix_cors::Cors;
-
+use uuid::Uuid;
 
 mod models;
 use models::{
-    AddCourses, AddPrepodCourses, CangeUserEnrollment, ChangePrepodCourses, ChangeUserData, DeleteUser, DeleteUserAdmin, LoginUser, RegisterUser, RegisterUserCourses, ResponseUser, Token, UploadDocument, User, ViewUser, СhangeUserData, СhangeUserRole
+    AddCourses, AddPrepodCourses, CangeUserEnrollment, ChangePrepodCourses, CoursesListResponse,
+    DeleteUser, DeleteUserAdmin, LoginUser, RegisterUser, RegisterUserCourses, ResponseUser, Token,
+    UserAuthentication, СhangeUserData, СhangeUserRole, CourseTopic, NameCourses
 };
 
 #[post("/register")]
@@ -214,24 +213,26 @@ async fn change_user_enrollment(
     user: web::Json<CangeUserEnrollment>,
     db_pool: web::Data<PgPool>,
 ) -> impl Responder {
-    let result = sqlx::query!("SELECT role FROM users WHERE mail = $1", user.token,)
+    let result = sqlx::query!("SELECT role FROM users WHERE mail = $1", user.token)
         .fetch_one(&**db_pool)
         .await;
 
     match result {
-        Ok(record) => match record.role {
-            r if r == "Администратор".to_string() => {
+        Ok(record) => match record.role.as_str() {
+            "Администратор" => {
                 let response = sqlx::query!(
-        
-                    "UPDATE listcourses SET enrollment = $1 WHERE users_id = (SELECT id FROM users WHERE mail = $2);",
-                    user.enrollment, user.mail
+                    "UPDATE listcourses
+                     SET enrollment = $1
+                     WHERE users_id = (SELECT id FROM users WHERE mail = $2)
+                     AND courses_id = (SELECT id FROM courses WHERE namecourses = $3)",
+                    user.enrollment, user.mail, user.course_name
                 )
                 .execute(&**db_pool)
                 .await;
 
                 match response {
-                    Ok(_) => HttpResponse::Ok().body("Add new enrollment"),
-                    Err(_) => HttpResponse::InternalServerError().body("Error add new enrollment"),
+                    Ok(_) => HttpResponse::Ok().body("Enrollment status updated"),
+                    Err(_) => HttpResponse::InternalServerError().body("Error updating enrollment status"),
                 }
             }
             _ => HttpResponse::Unauthorized().body("Invalid role"),
@@ -349,15 +350,15 @@ async fn delete_user(user: web::Json<DeleteUser>, db_pool: web::Data<PgPool>) ->
     HttpResponse::Ok().body("User deleted")
 }
 
-
 #[delete("/delete_user_admin")]
-async fn delete_user_admin(user: web::Json<DeleteUserAdmin>, db_pool: web::Data<PgPool>) -> impl Responder {
-    let role = match sqlx::query!(
-        "SELECT role FROM users WHERE mail = $1",
-        user.token,
-    )
-    .fetch_one(&**db_pool)
-    .await {
+async fn delete_user_admin(
+    user: web::Json<DeleteUserAdmin>,
+    db_pool: web::Data<PgPool>,
+) -> impl Responder {
+    let role = match sqlx::query!("SELECT role FROM users WHERE mail = $1", user.token,)
+        .fetch_one(&**db_pool)
+        .await
+    {
         Ok(response) => response.role,
         _ => return HttpResponse::Unauthorized().body("Invalid token"),
     };
@@ -366,12 +367,10 @@ async fn delete_user_admin(user: web::Json<DeleteUserAdmin>, db_pool: web::Data<
         return HttpResponse::Unauthorized().body("Only administrators can delete users");
     }
 
-    let users_id = match sqlx::query!(
-        "SELECT id FROM users WHERE mail = $1",
-        user.mail,
-    )
-    .fetch_one(&**db_pool)
-    .await {
+    let users_id = match sqlx::query!("SELECT id FROM users WHERE mail = $1", user.mail,)
+        .fetch_one(&**db_pool)
+        .await
+    {
         Ok(response) => response.id,
         _ => return HttpResponse::NotFound().body("User not found"),
     };
@@ -390,23 +389,18 @@ async fn delete_user_admin(user: web::Json<DeleteUserAdmin>, db_pool: web::Data<
     .fetch_one(&**db_pool)
     .await;
 
-    let delete_user_data = sqlx::query!(
-        "DELETE FROM public.users WHERE id = $1;",
-        users_id,
-    )
-    .fetch_one(&**db_pool)
-    .await;
-
-    
+    let delete_user_data = sqlx::query!("DELETE FROM public.users WHERE id = $1;", users_id,)
+        .fetch_one(&**db_pool)
+        .await;
 
     HttpResponse::Ok().body("User deleted")
 }
 
-
-
-
 #[post("/upload_documents")]
-async fn upload_documents(mut payload: Multipart, db_pool: web::Data<PgPool>) -> Result<HttpResponse, Error> {
+async fn upload_documents(
+    mut payload: Multipart,
+    db_pool: web::Data<PgPool>,
+) -> Result<HttpResponse, Error> {
     // Переменная для хранения имени загружаемого файла
     let mut file_name = String::new();
 
@@ -432,9 +426,7 @@ async fn upload_documents(mut payload: Multipart, db_pool: web::Data<PgPool>) ->
 
         // Пишем данные в файл
         while let Some(chunk) = field.try_next().await? {
-            f = web::block(move || {
-                f.write_all(&chunk).map(|_| f)
-            }).await??;
+            f = web::block(move || f.write_all(&chunk).map(|_| f)).await??;
         }
     }
 
@@ -449,8 +441,11 @@ async fn upload_documents(mut payload: Multipart, db_pool: web::Data<PgPool>) ->
     Ok(HttpResponse::Ok().body("mission complete"))
 }
 
-#[get("/view_users")]
-async fn view_users(db_pool: web::Data<PgPool>, user: web::Json<ChangeUserData>) -> impl Responder {
+#[post("/view_user")]
+async fn view_user(
+    db_pool: web::Data<PgPool>,
+    user: web::Json<UserAuthentication>,
+) -> impl Responder {
     // Первый запрос для получения ID пользователя по токену
     let user_id_result = sqlx::query!("SELECT id FROM users WHERE mail = $1", user.token)
         .fetch_one(&**db_pool)
@@ -467,28 +462,109 @@ async fn view_users(db_pool: web::Data<PgPool>, user: web::Json<ChangeUserData>)
             .await;
 
             match user_data_result {
-                Ok(userinfo) => {
-                    HttpResponse::Ok().json(ResponseUser {
-                        role: userinfo.role,
-                        surname: userinfo.surname.unwrap_or_else(|| "".to_string()),
-                        firstname: userinfo.firstname.unwrap_or_else(|| "".to_string()),
-                        lastname: userinfo.lastname.unwrap_or_else(|| "".to_string()),
-                    })
-                }
-                Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении данных пользователя"),
+                Ok(userinfo) => HttpResponse::Ok().json(ResponseUser {
+                    role: userinfo.role,
+                    surname: userinfo.surname.unwrap_or_else(|| "".to_string()),
+                    firstname: userinfo.firstname.unwrap_or_else(|| "".to_string()),
+                    lastname: userinfo.lastname.unwrap_or_else(|| "".to_string()),
+                }),
+                Err(_) => HttpResponse::InternalServerError()
+                    .body("Ошибка при получении данных пользователя"),
             }
         }
         Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении ID пользователя"),
     }
 }
 
+#[get("/get_user_courses_list")]
+async fn get_user_courses_list(
+    db_pool: web::Data<PgPool>,
+    user: web::Json<UserAuthentication>,
+) -> impl Responder {
+    // Первый запрос для получения ID пользователя по токену
+    let user_id_result = sqlx::query!("SELECT id FROM users WHERE mail = $1", user.token)
+        .fetch_one(&**db_pool)
+        .await;
+
+    match user_id_result {
+        Ok(user_id) => {
+            // Второй запрос для получения списка курсов пользователя
+            let user_courses_list = sqlx::query!(
+                "SELECT courses.namecourses, listcourses.enrollment FROM courses JOIN listcourses ON courses.id = listcourses.courses_id WHERE listcourses.users_id = $1",
+                user_id.id
+            )
+            .fetch_all(&**db_pool)
+            .await;
+
+            match user_courses_list {
+                Ok(userinfo) => {
+                    let (enrolled_courses, not_enrolled_courses): (Vec<_>, Vec<_>) = userinfo
+                        .into_iter()
+                        .partition(|course| course.enrollment);
+
+                    let enrolled_courses: Vec<String> = enrolled_courses
+                        .into_iter()
+                        .map(|course| course.namecourses)
+                        .collect();
+                    
+                    let not_enrolled_courses: Vec<String> = not_enrolled_courses
+                        .into_iter()
+                        .map(|course| course.namecourses)
+                        .collect();
+
+                    HttpResponse::Ok().json(CoursesListResponse {
+                        enrolled_courses,
+                        not_enrolled_courses,
+                    })
+                }
+                Err(_) => HttpResponse::InternalServerError()
+                    .body("Ошибка при получении списка курсов пользователя"),
+            }
+        }
+        Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении ID пользователя"),
+    }
+}
+
+
+
+
+#[get("/get_topics_by_course")]
+async fn get_topics_by_course(
+    db_pool: web::Data<PgPool>,
+    course_name: web::Json<NameCourses>,
+) -> impl Responder {
+    let topics_result = sqlx::query_as!(
+        CourseTopic,
+        r#"
+        SELECT courses.namecourses AS namecourses, themes.id AS id, themes.nametheme AS nametheme
+        FROM themes
+        JOIN courses ON themes.id_courses = courses.id
+        WHERE courses.namecourses = $1
+        ORDER BY themes.id ASC
+        "#,
+        course_name.namecourses
+    )
+    .fetch_all(&**db_pool)
+    .await;
+
+    match topics_result {
+        Ok(topics) => HttpResponse::Ok().json(topics),
+        Err(e) => {
+            eprintln!("Error fetching topics: {:?}", e);
+            HttpResponse::InternalServerError().body("Ошибка при получении тем")
+        }
+    }
+}
+
+
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
-    
+
     // Получаем URL базы данных из переменной окружения
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    
+
     // Создаем пул подключений к базе данных
     let db_pool = PgPool::connect(&database_url)
         .await
@@ -510,13 +586,15 @@ async fn main() -> std::io::Result<()> {
             .service(change_prepod_courses)
             .service(delete_user)
             .service(delete_user_admin)
-            .service(view_users)
+            .service(view_user)
+            .service(get_user_courses_list)
+            .service(get_topics_by_course)
             .wrap(
                 Cors::default()
                     .allow_any_origin()
                     .allow_any_method()
                     .allow_any_header()
-                    .supports_credentials()
+                    .supports_credentials(),
             )
             .route("/login", web::post().to(login_handler)) // Регистрируем маршрут для логина
     })
