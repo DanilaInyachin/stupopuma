@@ -10,6 +10,8 @@ use std::env;
 use sha2::{Sha256, Digest};
 use std::io::Write;
 
+use crate::view_users;
+
 #[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct User {
     pub mail: String,
@@ -108,4 +110,36 @@ pub struct AppState {
 struct LoginForm {
     mail: String,
     password: String,
+}
+
+#[derive(sqlx::FromRow)]
+pub struct ViewUser {
+    pub role: String,
+    pub surname: String,
+    pub firstname: String,
+    pub lastname: String,
+}
+
+#[derive(serde::Serialize)]
+pub struct ResponseUser {
+    pub lastname: String,
+    pub firstname: String,
+    pub surname: String,
+    pub role: String,
+}
+
+impl ResponseUser {
+    fn from(user: ViewUser) -> Self {
+        Self {
+            lastname: user.lastname,
+            firstname: user.firstname,
+            surname: user.surname,
+            role: user.role
+        }
+    }
+}
+
+#[derive(Deserialize)]
+pub struct ChangeUserData {
+    pub token: String,
 }
