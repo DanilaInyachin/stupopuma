@@ -528,7 +528,7 @@ async fn get_user_courses_list(
 
 
 
-#[get("/get_topics_by_course")]
+#[post("/get_topics_by_course")]
 async fn get_topics_by_course(
     db_pool: web::Data<PgPool>,
     course_name: web::Json<NameCourses>,
