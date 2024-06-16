@@ -23,7 +23,7 @@ const initialState: IUserInfo = {
   firstname: '',
   surname: '',
   role: '',
-} 
+};
 
 const GeneralInfo: FC = () => {
   const [isEditable, setIsEditable] = useState(false);
@@ -32,7 +32,7 @@ const GeneralInfo: FC = () => {
   const context = useContext(CurrentUserContext);
 
   const methods = useForm<IUserInfo>({
-    defaultValues: initialState
+    defaultValues: initialState,
   });
 
   useEffect(() => {
@@ -93,23 +93,22 @@ const GeneralInfo: FC = () => {
           <FormInput
             name="lastname"
             label="Lastname"
+            variant="standard"
             disabled={!isEditable}
           />
           <FormInput
             name="firstname"
             label="Firstname"
+            variant="standard"
             disabled={!isEditable}
           />
           <FormInput
             name="surname"
             label="Surname"
+            variant="standard"
             disabled={!isEditable}
           />
-          <FormInput
-            name="role"
-            label="Role"
-            disabled
-          />
+          <FormInput name="role" label="Role" variant="standard" disabled />
           <Grid container spacing={2} sx={{ mt: 2 }}>
             {isEditable ? (
               <>
@@ -119,14 +118,22 @@ const GeneralInfo: FC = () => {
                   </Button>
                 </Grid>
                 <Grid item>
-                  <Button variant="outlined" color="secondary" onClick={handleCancelClick}>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={handleCancelClick}
+                  >
                     Cancel
                   </Button>
                 </Grid>
               </>
             ) : (
               <Grid item>
-                <Button variant="contained" color="primary" onClick={handleEditClick}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleEditClick}
+                >
                   Edit
                 </Button>
               </Grid>
