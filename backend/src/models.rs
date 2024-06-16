@@ -1,16 +1,16 @@
+use actix_multipart::Multipart;
+use actix_web::web::Json;
+use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
-use actix_web::{web, App, HttpResponse, HttpServer, Responder};
-use actix_web::web::Json;
-use actix_multipart::Multipart;
 
-use sqlx::PgPool;
 use dotenv::dotenv;
+use sha2::{Digest, Sha256};
+use sqlx::PgPool;
 use std::env;
-use sha2::{Sha256, Digest};
 use std::io::Write;
 
-use crate::view_users;
+use crate::view_user;
 
 #[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct User {
@@ -58,9 +58,10 @@ pub struct AddCourses {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CangeUserEnrollment {
-    pub mail: String,
     pub token: String,
+    pub mail: String,
     pub enrollment: bool,
+    pub course_name: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -68,7 +69,6 @@ pub struct RegisterUserCourses {
     pub token: String,
     pub nameCourses: String,
 }
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddPrepodCourses {
@@ -98,8 +98,7 @@ pub struct DeleteUserAdmin {
 #[derive(Debug, serde::Deserialize)]
 pub struct UploadDocument {
     pub token: String,
-    pub file_name: String, 
- 
+    pub file_name: String,
 }
 
 pub struct AppState {
@@ -134,12 +133,31 @@ impl ResponseUser {
             lastname: user.lastname,
             firstname: user.firstname,
             surname: user.surname,
-            role: user.role
+            role: user.role,
         }
     }
 }
 
 #[derive(Deserialize)]
-pub struct ChangeUserData {
+pub struct UserAuthentication {
     pub token: String,
+}
+
+#[derive(Serialize)]
+pub struct CoursesListResponse {
+    pub enrolled_courses: Vec<String>,
+    pub not_enrolled_courses: Vec<String>,
+}
+
+#[derive(Serialize)]
+pub struct CourseTopic {
+    pub namecourses: String,
+    pub id: i32,
+    pub nametheme: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct NameCourses {
+    pub namecourses: String,
+
 }
