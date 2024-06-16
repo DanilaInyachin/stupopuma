@@ -78,16 +78,17 @@ const SigninPage: FC = () => {
   });
 
   // 👇 Submit Handler
-  const onSubmitHandler: SubmitHandler<ILogin> = (values: ILogin) => {
+  const onSubmitHandler: SubmitHandler<ILogin> = async (values: ILogin) => {
     console.log(values);
-    axios
-      .post('//localhost:8080/login', {
+    try {
+      const response = await axios.post('//localhost:8080/login', {
         mail: values.email,
         password: values.password,
-      })
-      .then((response) => {
-        console.log(response.data);
       });
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error: ', error);
+    }
   };
 
   // 👇 JSX to be rendered

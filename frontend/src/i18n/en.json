@@ -2,17 +2,26 @@
     "en": {
         "translation": {
             "Signin": "Log into your account",
+            "Signup": "Register your account",
             "Enter email": "Enter your email",
             "Password": "Password",
+            "Password confirm": "Confirm your password",
             "Trust": "Trust this device",
             "Login": "Login",
+            "Register": "Sign Up",
             "Need an account": "Need an account?",
+            "Have an account": "Already have an account?",
             "Email is required": "Email is required",
             "Email is invalid": "Email is invalid",
             "Password is required": "Password is required",
             "Password must be more": "Password must be more than 6 characters",
             "Password must be less": "Password must be less than 32 characters",
-            "Sign up": "Sign up here"
+            "Confirm password": "Please confirm your password",
+            "Passwords do not match": "Passwords do not match",
+            "Sign in": "Login",
+            "Sign up": "Sign up here",
+            "Welcome": "Welcome to StuPopuMa",
+            "Create account": "Create new your account"
         }
     }
 }

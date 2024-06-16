@@ -12,10 +12,10 @@ import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { object, string, TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FormInput from '../components/FormInput';
-import { ReactComponent as GoogleLogo } from '../assets/google.svg';
-import { ReactComponent as GitHubLogo } from '../assets/github.svg';
 import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import axios from 'axios';
 
 // 👇 Styled React Route Dom Link Component
 export const LinkItem = styled(Link)`
@@ -47,27 +47,27 @@ export const OauthMuiLink = styled(MuiLink)`
   }
 `;
 
-// 👇 SignUp Schema with Zod
-const signupSchema = object({
-  name: string().min(1, 'Name is required').max(70),
-  email: string().min(1, 'Email is required').email('Email is invalid'),
-  password: string()
-    .min(1, 'Password is required')
-    .min(8, 'Password must be more than 8 characters')
-    .max(32, 'Password must be less than 32 characters'),
-  passwordConfirm: string().min(1, 'Please confirm your password'),
-}).refine((data) => data.password === data.passwordConfirm, {
-  path: ['passwordConfirm'],
-  message: 'Passwords do not match',
-});
-
-// 👇 Infer the Schema to get TypeScript Type
-type ISignUp = TypeOf<typeof signupSchema>;
-
 const SignupPage: FC = () => {
+  const { t } = useTranslation();
+
+  // 👇 SignUp Schema with Zod
+  const signupSchema = object({
+    email: string().min(1, t('Email is required')).email(t('Email is invalid')),
+    password: string()
+      .min(1, t('Password is required'))
+      .min(6, t('Password must be more'))
+      .max(32, t('Password must be less')),
+    passwordConfirm: string().min(1, t('Confirm password')),
+  }).refine((data) => data.password === data.passwordConfirm, {
+    path: ['passwordConfirm'],
+    message: t('Passwords do not match'),
+  });
+
+  // 👇 Infer the Schema to get TypeScript Type
+  type ISignUp = TypeOf<typeof signupSchema>;
+
   // 👇 Default Values
   const defaultValues: ISignUp = {
-    name: '',
     email: '',
     password: '',
     passwordConfirm: '',
@@ -80,8 +80,17 @@ const SignupPage: FC = () => {
   });
 
   // 👇 Form Handler
-  const onSubmitHandler: SubmitHandler<ISignUp> = (values: ISignUp) => {
+  const onSubmitHandler: SubmitHandler<ISignUp> = async (values: ISignUp) => {
     console.log(JSON.stringify(values, null, 4));
+    try {
+      const response = await axios.post('//localhost:8080/register', {
+        mail: values.email,
+        password: values.password,
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error: ', error);
+    }
   };
 
   // 👇 Returned JSX
@@ -119,7 +128,7 @@ const SignupPage: FC = () => {
                   pb: { sm: '3rem' },
                 }}
               >
-                Welcome To Loop True!
+                {t('Welcome')}
               </Typography>
               <Grid
                 item
@@ -131,12 +140,7 @@ const SignupPage: FC = () => {
                   marginInline: 'auto',
                 }}
               >
-                <Grid
-                  item
-                  xs={12}
-                  sm={6}
-                  sx={{ borderRight: { sm: '1px solid #ddd' } }}
-                >
+                <Grid item xs={12}>
                   <Box
                     display="flex"
                     flexDirection="column"
@@ -151,18 +155,11 @@ const SignupPage: FC = () => {
                       component="h1"
                       sx={{ textAlign: 'center', mb: '1.5rem' }}
                     >
-                      Create new your account
+                      {t('Create account')}
                     </Typography>
 
                     <FormInput
-                      label="Name"
-                      type="text"
-                      name="name"
-                      focused
-                      required
-                    />
-                    <FormInput
-                      label="Enter your email"
+                      label={t('Enter email')}
                       type="email"
                       name="email"
                       focused
@@ -170,14 +167,14 @@ const SignupPage: FC = () => {
                     />
                     <FormInput
                       type="password"
-                      label="Password"
+                      label={t('Password')}
                       name="password"
                       required
                       focused
                     />
                     <FormInput
                       type="password"
-                      label="Confirm Password"
+                      label={t('Password confirm')}
                       name="passwordConfirm"
                       required
                       focused
@@ -194,42 +191,16 @@ const SignupPage: FC = () => {
                         marginInline: 'auto',
                       }}
                     >
-                      Sign Up
+                      {t('Register')}
                     </LoadingButton>
-                  </Box>
-                </Grid>
-                <Grid item xs={12} sm={6} sx={{}}>
-                  <Typography
-                    variant="h6"
-                    component="p"
-                    sx={{
-                      paddingLeft: { sm: '3rem' },
-                      mb: '1.5rem',
-                      textAlign: 'center',
-                    }}
-                  >
-                    Sign up using another provider:
-                  </Typography>
-                  <Box
-                    display="flex"
-                    flexDirection="column"
-                    sx={{ paddingLeft: { sm: '3rem' }, rowGap: '1rem' }}
-                  >
-                    <OauthMuiLink href="">
-                      <GoogleLogo style={{ height: '2rem' }} />
-                      Google
-                    </OauthMuiLink>
-                    <OauthMuiLink href="">
-                      <GitHubLogo style={{ height: '2rem' }} />
-                      GitHub
-                    </OauthMuiLink>
                   </Box>
                 </Grid>
               </Grid>
               <Grid container justifyContent="center">
                 <Stack sx={{ mt: '3rem', textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '0.9rem', mb: '1rem' }}>
-                    Already have an account? <LinkItem to="/">Login</LinkItem>
+                    {t('Have an account') + ' '}
+                    <LinkItem to="/signin">{t('Sign in')}</LinkItem>
                   </Typography>
                 </Stack>
               </Grid>
