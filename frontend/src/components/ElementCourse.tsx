@@ -45,8 +45,14 @@ const ElementCourse: FC<ElementCourseProps> = ({ namecourse }) => {
   };
 
   const handleEnroll = () => {
-    // console.log('Enroll to course ID:', course.id);
-    // Логика записи на курс
+    if (context && context.isAuthAndToken) {
+      axios.post('//localhost:8080/register_user_courses', {
+        nameCourses: namecourse,
+        token: context.isAuthAndToken
+      }).catch((error) => {
+        console.error('Error: ', error);
+      })
+    }
   };
 
   return (
