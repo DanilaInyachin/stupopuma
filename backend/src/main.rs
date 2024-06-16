@@ -20,8 +20,7 @@ use actix_cors::Cors;
 
 mod models;
 use models::{
-    AddCourses, AddPrepodCourses, CangeUserEnrollment, ChangePrepodCourses, DeleteUser, LoginUser,
-    RegisterUser, RegisterUserCourses, Token, User, СhangeUserData, СhangeUserRole, DeleteUserAdmin, UploadDocument
+    AddCourses, AddPrepodCourses, CangeUserEnrollment, ChangePrepodCourses, ChangeUserData, DeleteUser, DeleteUserAdmin, LoginUser, RegisterUser, RegisterUserCourses, ResponseUser, Token, UploadDocument, User, ViewUser, СhangeUserData, СhangeUserRole
 };
 
 #[post("/register")]
@@ -97,7 +96,7 @@ async fn change_user_role(
     user: web::Json<СhangeUserRole>,
     db_pool: web::Data<PgPool>,
 ) -> impl Responder {
-    let result = sqlx::query!("SELECT role FROM users WHERE mail = $1", user.token,)
+    let result = sqlx::query!("SELECT role FROM users WHERE mail = $1", user.token)
         .fetch_one(&**db_pool)
         .await;
 
@@ -241,7 +240,7 @@ async fn change_user_enrollment(
     }
 }
 
-#[put("/add_prepod_courses")]
+#[put("/add_prepod_courses")] //добавление новых тем в курс
 async fn add_prepod_courses(
     user: web::Json<AddPrepodCourses>,
     db_pool: web::Data<PgPool>,
@@ -288,7 +287,7 @@ async fn add_prepod_courses(
     }
 }
 
-#[put("/change_prepod_courses")]
+#[put("/change_prepod_courses")] //изменение тем в курсе
 async fn change_prepod_courses(
     user: web::Json<ChangePrepodCourses>,
     db_pool: web::Data<PgPool>,
@@ -450,11 +449,38 @@ async fn upload_documents(mut payload: Multipart, db_pool: web::Data<PgPool>) ->
     Ok(HttpResponse::Ok().body("mission complete"))
 }
 
+#[get("/view_users")]
+async fn view_users(db_pool: web::Data<PgPool>, user: web::Json<ChangeUserData>) -> impl Responder {
+    // Первый запрос для получения ID пользователя по токену
+    let user_id_result = sqlx::query!("SELECT id FROM users WHERE mail = $1", user.token)
+        .fetch_one(&**db_pool)
+        .await;
 
-pub struct AppState {
-    db: PgPool,
+    match user_id_result {
+        Ok(user_id) => {
+            // Второй запрос для получения данных пользователя по ID
+            let user_data_result = sqlx::query!(
+                "SELECT role, surname, firstname, lastname FROM users WHERE id = $1",
+                user_id.id
+            )
+            .fetch_one(&**db_pool)
+            .await;
+
+            match user_data_result {
+                Ok(userinfo) => {
+                    HttpResponse::Ok().json(ResponseUser {
+                        role: userinfo.role,
+                        surname: userinfo.surname.unwrap_or_else(|| "".to_string()),
+                        firstname: userinfo.firstname.unwrap_or_else(|| "".to_string()),
+                        lastname: userinfo.lastname.unwrap_or_else(|| "".to_string()),
+                    })
+                }
+                Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении данных пользователя"),
+            }
+        }
+        Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении ID пользователя"),
+    }
 }
-
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -484,6 +510,7 @@ async fn main() -> std::io::Result<()> {
             .service(change_prepod_courses)
             .service(delete_user)
             .service(delete_user_admin)
+            .service(view_users)
             .wrap(
                 Cors::default()
                     .allow_any_origin()
