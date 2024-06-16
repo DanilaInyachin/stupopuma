@@ -36,12 +36,17 @@ const GeneralInfo: FC = () => {
       navigate('/signin');
     } else {
       axios
-        .post<IUserInfoResponse>('//localhost:8080/view_user', {
+        .post('//localhost:8080/view_user', {
           token: context.isAuthAndToken,
         })
         .then((response) => {
-          console.log(data);
-          setData(response.data.data)
+          console.log(response);
+          setData({
+            lastname: response.data.lastname,
+            firstname: response.data.firstname,
+            surname: response.data.surname,
+            role: response.data.role,
+          })
         })
         .catch((error) => {
           console.error('Error: ', error);
