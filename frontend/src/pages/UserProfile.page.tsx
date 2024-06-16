@@ -1,10 +1,12 @@
 import { Box, Container, Grid, Tab, Tabs, Typography } from '@mui/material';
-import { FC, useState } from 'react';
+import { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import GeneralInfo from './tabs/GeneralInfo';
 import AllCourses from './tabs/AllCourses';
 import UserCourses from './tabs/UserCourses';
 import styled from '@emotion/styled';
+import { useNavigate } from 'react-router-dom';
+import CurrentUserContext from '../contex';
 
 const VerticalTabs = styled(Tabs)({
   borderRight: `1px solid #ddd`,
@@ -13,6 +15,14 @@ const VerticalTabs = styled(Tabs)({
 const UserProfilePage: FC = () => {
   const { t } = useTranslation();
   const [value, setValue] = useState(0);
+  const navigate = useNavigate();
+  const context = useContext(CurrentUserContext);
+
+  useEffect(() => {
+    if (!context || !context.isAuthAndToken) {
+      navigate('/signin');
+    }
+  }, [context, navigate]);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);

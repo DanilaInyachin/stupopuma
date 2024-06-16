@@ -8,7 +8,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from '@mui/material';
-import { FC } from 'react';
+import { FC, useContext } from 'react';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,6 +18,7 @@ import styled from '@emotion/styled';
 import { LoadingButton } from '@mui/lab';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+import CurrentUserContext from '../contex';
 
 // 👇 Styled React Route Dom Link Component
 export const LinkItem = styled(Link)`
@@ -51,6 +52,7 @@ export const OauthMuiLink = styled(MuiLink)`
 
 const SigninPage: FC = () => {
   const { t } = useTranslation();
+  const context = useContext(CurrentUserContext);
 
   // 👇 Login Schema with Zod
   const loginSchema = object({
@@ -85,7 +87,11 @@ const SigninPage: FC = () => {
         password: values.password,
       });
       console.log(response.data);
+      if (context) {
+        context.setIsAuthAndToken(values.email);
+      }
     } catch (error) {
+      // TODO: 401 обработать 
       console.error('Error: ', error);
     }
   };
