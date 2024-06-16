@@ -86,6 +86,7 @@ const SigninPage: FC = () => {
       });
       console.log(response.data);
     } catch (error) {
+      // TODO: 401 обработать 
       console.error('Error: ', error);
     }
   };
