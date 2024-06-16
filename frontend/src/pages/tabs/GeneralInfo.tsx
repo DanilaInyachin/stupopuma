@@ -73,10 +73,18 @@ const GeneralInfo: FC = () => {
     methods.reset(data); // Reset form values to default
   };
 
-  const handleSaveClick: SubmitHandler<IUserInfo> = (data) => {
-    console.log('Saved data:', data);
+  const handleSaveClick = methods.handleSubmit((formData: IUserInfo) => {
+    setData(formData);
+    axios.put('//localhost:8080/change_user_data', {
+      surname: formData.surname,
+      firstname: formData.firstname,
+      lastname: formData.lastname,
+      token: context?.isAuthAndToken,
+    }).catch(error => {
+      console.error('Error: ', error);
+    })
     setIsEditable(false);
-  };
+  });
 
   return (
     <Box>
@@ -84,12 +92,7 @@ const GeneralInfo: FC = () => {
         General Information
       </Typography>
       <FormProvider {...methods}>
-        <Box
-          component="form"
-          onSubmit={methods.handleSubmit(handleSaveClick)}
-          noValidate
-          autoComplete="off"
-        >
+        <Box component="form" noValidate autoComplete="off">
           <FormInput
             name="lastname"
             label="Lastname"
@@ -113,7 +116,11 @@ const GeneralInfo: FC = () => {
             {isEditable ? (
               <>
                 <Grid item>
-                  <Button variant="contained" color="primary" type="submit">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSaveClick}
+                  >
                     Save
                   </Button>
                 </Grid>
