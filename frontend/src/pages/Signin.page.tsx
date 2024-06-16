@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { FC, useContext } from 'react';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { literal, object, string, TypeOf } from 'zod';
 import FormInput from '../components/FormInput';
@@ -53,6 +53,7 @@ export const OauthMuiLink = styled(MuiLink)`
 const SigninPage: FC = () => {
   const { t } = useTranslation();
   const context = useContext(CurrentUserContext);
+  const navigate = useNavigate();
 
   // 👇 Login Schema with Zod
   const loginSchema = object({
@@ -90,6 +91,7 @@ const SigninPage: FC = () => {
       if (context) {
         context.setIsAuthAndToken(values.email);
       }
+      navigate('/profile')
     } catch (error) {
       // TODO: 401 обработать 
       console.error('Error: ', error);
