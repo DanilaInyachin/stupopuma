@@ -7,7 +7,7 @@ import {
   Link as MuiLink,
 } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { FC } from 'react';
+import { FC, useContext } from 'react';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { object, string, TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +16,7 @@ import styled from '@emotion/styled';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+import CurrentUserContext from '../contex';
 
 // 👇 Styled React Route Dom Link Component
 export const LinkItem = styled(Link)`
@@ -50,6 +51,7 @@ export const OauthMuiLink = styled(MuiLink)`
 const SignupPage: FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const context = useContext(CurrentUserContext);
 
   // 👇 SignUp Schema with Zod
   const signupSchema = object({
@@ -88,6 +90,9 @@ const SignupPage: FC = () => {
         password: values.password,
       });
       console.log(response.data);
+      if (context) {
+        context.setIsAuthAndToken(values.email);
+      }
       navigate('/profile');
     } catch (error) {
       console.error('Error: ', error);
