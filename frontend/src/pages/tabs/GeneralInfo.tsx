@@ -62,7 +62,7 @@ const GeneralInfo: FC = () => {
           console.error('Error: ', error);
         });
     }
-  }, [context, navigate, methods]);
+  }, [context, navigate, methods, setData]);
 
   const handleEditClick = () => {
     setIsEditable(true);
