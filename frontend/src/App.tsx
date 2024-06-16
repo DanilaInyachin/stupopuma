@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import SigninPage from './pages/Signin.page';
+import SignupPage from './pages/Signup.page';
 
 const theme = createTheme();
 
@@ -31,7 +32,8 @@ function App() {
         <CssBaseline />
         <Routes>
           <Route path="/" element={<SigninPage />} />
-          <Route path="/about" element={<SigninPage />} />
+          <Route path="/signin" element={<SigninPage />} />
+          <Route path="/signup" element={<SignupPage />} />
         </Routes>
       </ThemeProvider>
     </div>
