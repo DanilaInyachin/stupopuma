@@ -31,6 +31,10 @@ const GeneralInfo: FC = () => {
   const navigate = useNavigate();
   const context = useContext(CurrentUserContext);
 
+  const methods = useForm<IUserInfo>({
+    defaultValues: initialState
+  });
+
   useEffect(() => {
     if (!context || !context.isAuthAndToken) {
       navigate('/signin');
@@ -46,19 +50,19 @@ const GeneralInfo: FC = () => {
             firstname: response.data.firstname,
             surname: response.data.surname,
             role: response.data.role,
-          })
+          });
+          methods.reset({
+            lastname: response.data.lastname,
+            firstname: response.data.firstname,
+            surname: response.data.surname,
+            role: response.data.role,
+          });
         })
         .catch((error) => {
           console.error('Error: ', error);
         });
     }
-  });
-
-  const methods = useForm<IUserInfo>({
-    defaultValues: {
-      ...data
-    },
-  });
+  }, [context, navigate, methods]);
 
   const handleEditClick = () => {
     setIsEditable(true);
@@ -66,7 +70,7 @@ const GeneralInfo: FC = () => {
 
   const handleCancelClick = () => {
     setIsEditable(false);
-    methods.reset(); // Reset form values to default
+    methods.reset(data); // Reset form values to default
   };
 
   const handleSaveClick: SubmitHandler<IUserInfo> = (data) => {
