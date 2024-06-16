@@ -2,17 +2,31 @@
     "ru": {
         "translation": {
             "Signin": "Войдите в аккаунт",
+            "Signup": "Зарегистрировать аккаунт",
             "Enter email": "Введите свою почту",
             "Password": "Пароль",
+            "Password confirm": "Подтверждение пароля",
             "Trust": "Сохранить данные",
             "Login": "Войти",
+            "Register": "Создать",
             "Need an account": "Нет аккаунта?",
+            "Have an account": "Уже есть аккаунт?",
             "Email is required": "Требуется почта",
             "Email is invalid": "Некорректная почта",
             "Password is required": "Требуется пароль",
             "Password must be more": "Пароль должен быть больше 6 символов",
             "Password must be less": "Пароль должен быть меньше 32 символов",
-            "Sign up": "Зарегистрироваться"
+            "Confirm password": "Требуется подтверждение пароля",
+            "Passwords do not match": "Пароли не совпадают",
+            "Sign in": "Войти",
+            "Sign up": "Зарегистрироваться",
+            "Welcome": "Добро пожаловать в СтуПопуМа",
+            "Create account": "Создайте новый аккаунт",
+
+            "User profile": "Профиль пользователя",
+            "General info": "Общая информация",
+            "All courses": "Все курсы",
+            "Followed courses": "Отслеживаемые курсы"
         }
     }
 }

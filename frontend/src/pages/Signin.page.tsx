@@ -8,9 +8,9 @@ import {
   FormControlLabel,
   Checkbox,
 } from '@mui/material';
-import { FC } from 'react';
+import { FC, useContext } from 'react';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { literal, object, string, TypeOf } from 'zod';
 import FormInput from '../components/FormInput';
@@ -18,6 +18,7 @@ import styled from '@emotion/styled';
 import { LoadingButton } from '@mui/lab';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
+import CurrentUserContext from '../contex';
 
 // 👇 Styled React Route Dom Link Component
 export const LinkItem = styled(Link)`
@@ -51,6 +52,8 @@ export const OauthMuiLink = styled(MuiLink)`
 
 const SigninPage: FC = () => {
   const { t } = useTranslation();
+  const context = useContext(CurrentUserContext);
+  const navigate = useNavigate();
 
   // 👇 Login Schema with Zod
   const loginSchema = object({
@@ -78,16 +81,21 @@ const SigninPage: FC = () => {
   });
 
   // 👇 Submit Handler
-  const onSubmitHandler: SubmitHandler<ILogin> = (values: ILogin) => {
-    console.log(values);
-    axios
-      .post('//localhost:8080/login', {
+  const onSubmitHandler: SubmitHandler<ILogin> = async (values: ILogin) => {
+    try {
+      const response = await axios.post('//localhost:8080/login', {
         mail: values.email,
         password: values.password,
-      })
-      .then((response) => {
-        console.log(response.data);
       });
+      console.log(response.data);
+      if (context) {
+        context.setIsAuthAndToken(values.email);
+      }
+      navigate('/profile')
+    } catch (error) {
+      // TODO: 401 обработать 
+      console.error('Error: ', error);
+    }
   };
 
   // 👇 JSX to be rendered

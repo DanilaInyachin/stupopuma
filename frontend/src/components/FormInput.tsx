@@ -39,7 +39,7 @@ type FormInputProps = {
   name: string;
 } & TextFieldProps;
 
-const FormInput: FC<FormInputProps> = ({ name, ...otherProps }) => {
+const FormInput: FC<FormInputProps> = ({ name, variant = 'outlined', ...otherProps }) => {
   // 👇 Utilizing useFormContext to have access to the form Context
   const {
     control,
@@ -55,7 +55,7 @@ const FormInput: FC<FormInputProps> = ({ name, ...otherProps }) => {
         <CssTextField
           {...field}
           {...otherProps}
-          variant="outlined"
+          variant={variant}
           sx={{ mb: "1.5rem" }}
           error={!!errors[name]}
           helperText={
