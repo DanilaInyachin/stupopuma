@@ -21,11 +21,13 @@ interface ICourse {
 interface ElementCourseProps {
   namecourse: string;
   needButton?: boolean;
+  isTeacher?: boolean;
 }
 
 const ElementCourse: FC<ElementCourseProps> = ({
   namecourse,
   needButton = true,
+  isTeacher = false,
 }) => {
   const [open, setOpen] = useState(false);
   const [courses, setCourses] = useState<ICourse[]>([]);
@@ -64,6 +66,18 @@ const ElementCourse: FC<ElementCourseProps> = ({
     }
   };
 
+  const handleEditCourse = () => {
+    console.log('Edit course');
+  };
+
+  const handleAddTopic = () => {
+    console.log('Add topic');
+  };
+
+  const handleEditTopic = () => {
+    console.log('Edit topic');
+  };
+
   return (
     <Box>
       <ListItem onClick={handleToggle}>
@@ -84,8 +98,27 @@ const ElementCourse: FC<ElementCourseProps> = ({
               Enroll
             </Button>
           </Box>
-        ) : (
-          <></>
+        ) : null}
+        {isTeacher && (
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 2 }}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleEditCourse}
+            >
+              Изменить курс
+            </Button>
+            <Button variant="outlined" color="primary" onClick={handleAddTopic}>
+              Добавить тему
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleEditTopic}
+            >
+              Изменить тему
+            </Button>
+          </Box>
         )}
       </Collapse>
     </Box>

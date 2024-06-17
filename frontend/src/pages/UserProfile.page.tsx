@@ -37,7 +37,10 @@ const UserProfilePage: FC = () => {
       case 'Преподаватель':
         return [
           { label: t('General info'), component: <GeneralInfo /> },
-          { label: t('All courses'), component: <AllCourses /> },
+          {
+            label: t('All courses'),
+            component: <AllCourses needButton={false} />,
+          },
         ];
       default:
         return [
