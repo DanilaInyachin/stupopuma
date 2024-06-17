@@ -558,7 +558,7 @@ async fn get_topics_by_course(
 
 
 
-#[get("/unenrolled_courses")]
+#[post("/unenrolled_courses")]
 async fn unenrolled_courses(
     user: web::Json<UserAuthentication>,
     db_pool: web::Data<PgPool>,
@@ -572,7 +572,7 @@ async fn unenrolled_courses(
             if record.role == "Администратор" {
                 let unenrolled_courses_result = sqlx::query!(
                     r#"
-                    SELECT users.surname, users.firstname, users.lastname, courses.namecourses AS course_name
+                    SELECT users.mail, users.surname, users.firstname, users.lastname, courses.namecourses AS course_name
                     FROM listcourses
                     JOIN users ON listcourses.users_id = users.id
                     JOIN courses ON listcourses.courses_id = courses.id
@@ -585,6 +585,7 @@ async fn unenrolled_courses(
                 match unenrolled_courses_result {
                     Ok(rows) => {
                         let courses: Vec<UnenrolledCourse> = rows.into_iter().map(|row| UnenrolledCourse {
+                            mail: row.mail.unwrap_or_else(|| "".to_string()),
                             surname: row.surname.unwrap_or_else(|| "".to_string()),
                             firstname: row.firstname.unwrap_or_else(|| "".to_string()),
                             lastname: row.lastname.unwrap_or_else(|| "".to_string()),
