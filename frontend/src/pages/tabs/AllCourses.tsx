@@ -5,12 +5,6 @@ import ElementCourse from '../../components/ElementCourse';
 import { useNavigate } from 'react-router-dom';
 import CurrentUserContext from '../../contex';
 
-const hui = {
-  id: 1,
-  title: 'hui',
-  topics: ['hui1', 'hui2', 'hui3'],
-};
-
 const AllCourses: FC = () => {
   const [namecourses, setNamecourses] = useState<string[]>([]);
   const navigate = useNavigate();
