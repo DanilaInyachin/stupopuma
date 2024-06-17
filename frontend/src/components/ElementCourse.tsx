@@ -32,6 +32,10 @@ const ElementCourse: FC<ElementCourseProps> = ({
   const [open, setOpen] = useState(false);
   const [courses, setCourses] = useState<ICourse[]>([]);
   const context = useContext(CurrentUserContext);
+  const [editCourseName, setEditCourseName] = useState(namecourse);
+  const [isEditingCourse, setIsEditingCourse] = useState(false);
+  const [isAddingTopic, setIsAddingTopic] = useState(false);
+  const [newTopicName, setNewTopicName] = useState('');
 
   useEffect(() => {
     if (context) {
@@ -53,6 +57,43 @@ const ElementCourse: FC<ElementCourseProps> = ({
     setOpen((prevOpen) => !prevOpen);
   };
 
+  const handleEditCourse = () => {
+    if (context && context.isAuthAndToken) {
+      axios
+        .put('//localhost:8080/edit_course', {
+          token: context.isAuthAndToken,
+          new_name_courses: editCourseName,
+          name_courses: namecourse,
+        })
+        .then((response) => {
+          console.log(response);
+          setIsEditingCourse(false);
+        })
+        .catch((error) => {
+          console.error('Error: ', error);
+        });
+    }
+  };
+
+  const handleAddTopic = () => {
+    if (context && context.isAuthAndToken) {
+      axios
+        .post('//localhost:8080/add_prepod_courses', {
+          token: context.isAuthAndToken,
+          nameCourses: namecourse,
+          nametheme: [newTopicName]
+        })
+        .then((response) => {
+          console.log(response);
+          setIsAddingTopic(false);
+          setNewTopicName('');
+        })
+        .catch((error) => {
+          console.error('Error: ', error);
+        });
+    }
+  };
+
   const handleEnroll = () => {
     if (context && context.isAuthAndToken) {
       axios
@@ -64,14 +105,6 @@ const ElementCourse: FC<ElementCourseProps> = ({
           console.error('Error: ', error);
         });
     }
-  };
-
-  const handleEditCourse = () => {
-    console.log('Edit course');
-  };
-
-  const handleAddTopic = () => {
-    console.log('Add topic');
   };
 
   const handleEditTopic = () => {
