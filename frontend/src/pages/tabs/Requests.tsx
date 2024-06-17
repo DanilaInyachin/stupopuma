@@ -30,40 +30,27 @@ const Requests: FC = () => {
   const context = useContext(CurrentUserContext);
   const navigate = useNavigate();
 
+  const fetchRequests = () => {
+    axios;
+    axios
+      .post('//localhost:8080/unenrolled_courses', {
+        token: context?.isAuthAndToken,
+      })
+      .then((response) => {
+        setRequests(response.data);
+      })
+      .catch((error) => {
+        console.error('Error: ', error);
+      });
+  };
+
   useEffect(() => {
     if (!context || !context.isAuthAndToken) {
       navigate('/signin');
     } else {
-      axios
-        .post('//localhost:8080/unenrolled_courses', {
-          token: context.isAuthAndToken,
-        })
-        .then((response) => {
-          setRequests(response.data);
-        })
-        .catch((error) => {
-          console.error('Error: ', error);
-        });
+      fetchRequests();
     }
   }, [context, navigate, setRequests]);
-
-  // const fetchRequests = () => {
-  //   axios
-  //     .get('//localhost:8080/view_requests', {
-  //       headers: { Authorization: `Bearer ${context?.isAuthAndToken}` },
-  //     })
-  //     .then((response) => {
-  //       console.log(response);
-  //       setRequests(response.data);
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error fetching requests: ', error);
-  //     });
-  // };
-
-  // useEffect(() => {
-  //   fetchRequests();
-  // }, []);
 
   const handleConfirm = (request: IRequest) => {
     if (context && context.isAuthAndToken) {
@@ -76,7 +63,7 @@ const Requests: FC = () => {
         })
         .then((response) => {
           console.log(response);
-          // fetchRequests();
+          fetchRequests();
         })
         .catch((error) => {
           console.error('Error: ', error);
