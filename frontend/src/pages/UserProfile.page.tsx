@@ -28,7 +28,10 @@ const UserProfilePage: FC = () => {
       case 'Администратор':
         return [
           { label: t('General info'), component: <GeneralInfo /> },
-          { label: t('All courses'), component: <AllCourses /> },
+          {
+            label: t('All courses'),
+            component: <AllCourses needButton={false} />,
+          },
           { label: t('Requests'), component: <Requests /> },
         ];
       case 'Преподаватель':
