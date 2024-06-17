@@ -50,9 +50,7 @@ const ListStudens = () => {
       <List>
         {listsStudents.map((list, index) => (
           <ListItem key={index} divider>
-            <Typography variant="body1">
-              {list.course_name}
-            </Typography>
+            <ListItemText primary={list.course_name} />
             <List>
               {list.students.map((student, index) => (
                 <ListItem key={index} divider >
