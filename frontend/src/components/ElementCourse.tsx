@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
-import CurrentUserContext from '../contex';
+import CurrentUserContext from '../context';
 import axios from 'axios';
 
 interface ICourse {

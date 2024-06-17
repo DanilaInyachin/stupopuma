@@ -3,7 +3,7 @@ import { Typography, Box } from '@mui/material';
 import axios from 'axios';
 import ElementCourse from '../../components/ElementCourse';
 import { useNavigate } from 'react-router-dom';
-import CurrentUserContext from '../../contex';
+import CurrentUserContext from '../../context';
 
 const AllCourses: FC = () => {
   const [namecourses, setNamecourses] = useState<string[]>([]);
