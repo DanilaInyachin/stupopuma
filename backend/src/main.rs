@@ -17,12 +17,13 @@ use uuid::Uuid;
 
 mod models;
 use models::{
-    AddCourses, AddPrepodCourses, CangeUserEnrollment, ChangePrepodCourses, CoursesListResponse,
-    DeleteUser, DeleteUserAdmin, LoginUser, RegisterUser, RegisterUserCourses, ResponseUser, Token,
-    UserAuthentication, СhangeUserData, СhangeUserRole, CourseTopic, NameCourses, UnenrolledCourse, EnrolledCoursesList, UserToken, EditCourse
+    AddCourses, AddPrepodCourses, CangeUserEnrollment, ChangePrepodCourses, CourseTopic,
+    CoursesListResponse, DeleteUser, DeleteUserAdmin, EditCourse, EnrolledCoursesList, LoginUser,
+    NameCourses, RegisterUser, RegisterUserCourses, ResponseUser, Token, UnenrolledCourse,
+    UserAuthentication, UserToken, СhangeUserData, СhangeUserRole,
 };
 
-#[post("/register")] 
+#[post("/register")]
 async fn register_user(
     user: web::Json<RegisterUser>,
     db_pool: web::Data<PgPool>,
@@ -127,9 +128,9 @@ async fn add_courses(user: web::Json<AddCourses>, db_pool: web::Data<PgPool>) ->
         .fetch_one(&**db_pool)
         .await;
 
-        match result {
-            Ok(record) => match record.role.as_str() {
-                "Администратор" | "Преподаватель" => {
+    match result {
+        Ok(record) => match record.role.as_str() {
+            "Администратор" | "Преподаватель" => {
                 let response = sqlx::query!(
                     "INSERT INTO courses (namecourses) VALUES ($1);",
                     user.nameCourses,
@@ -148,41 +149,38 @@ async fn add_courses(user: web::Json<AddCourses>, db_pool: web::Data<PgPool>) ->
     }
 }
 
-
-
-
 #[post("/edit_course")]
-async fn edit_course(course_data: web::Json<EditCourse>, db_pool: web::Data<PgPool>) -> HttpResponse {
+async fn edit_course(
+    course_data: web::Json<EditCourse>,
+    db_pool: web::Data<PgPool>,
+) -> HttpResponse {
     let result = sqlx::query!("SELECT role FROM users WHERE mail = $1", course_data.token)
         .fetch_one(&**db_pool)
         .await;
 
     match result {
-        Ok(record) => {
-            match record.role.as_str() {
-                "Администратор" | "Преподаватель" => {
-                    let response = sqlx::query!(
-                        "UPDATE courses SET namecourses = $1 WHERE namecourses = $2",
-                        course_data.new_name_courses,
-                        course_data.name_courses,
-                    )
-                    .execute(&**db_pool)
-                    .await;
+        Ok(record) => match record.role.as_str() {
+            "Администратор" | "Преподаватель" => {
+                let response = sqlx::query!(
+                    "UPDATE courses SET namecourses = $1 WHERE namecourses = $2",
+                    course_data.new_name_courses,
+                    course_data.name_courses,
+                )
+                .execute(&**db_pool)
+                .await;
 
-                    match response {
-                        Ok(_) => HttpResponse::Ok().body("Course name updated"),
-                        Err(_) => HttpResponse::InternalServerError().body("Failed to update course name"),
+                match response {
+                    Ok(_) => HttpResponse::Ok().body("Course name updated"),
+                    Err(_) => {
+                        HttpResponse::InternalServerError().body("Failed to update course name")
                     }
                 }
-                _ => HttpResponse::Unauthorized().body("Invalid role"),
             }
-        }
+            _ => HttpResponse::Unauthorized().body("Invalid role"),
+        },
         Err(_) => HttpResponse::InternalServerError().body("Error logging in"),
     }
 }
-
-
-
 
 #[get("/view_courses")]
 async fn view_courses(db_pool: web::Data<PgPool>) -> impl Responder {
@@ -201,8 +199,6 @@ async fn view_courses(db_pool: web::Data<PgPool>) -> impl Responder {
         Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении данных курсов"),
     }
 }
-
-
 
 #[post("/register_user_courses")]
 async fn register_user_courses(
@@ -247,9 +243,6 @@ async fn register_user_courses(
     }
 }
 
-
-
-
 #[put("/change_user_enrollment")]
 async fn change_user_enrollment(
     user: web::Json<CangeUserEnrollment>,
@@ -267,14 +260,18 @@ async fn change_user_enrollment(
                      SET enrollment = $1
                      WHERE users_id = (SELECT id FROM users WHERE mail = $2)
                      AND courses_id = (SELECT id FROM courses WHERE namecourses = $3)",
-                    user.enrollment, user.mail, user.course_name
+                    user.enrollment,
+                    user.mail,
+                    user.course_name
                 )
                 .execute(&**db_pool)
                 .await;
 
                 match response {
                     Ok(_) => HttpResponse::Ok().body("Enrollment status updated"),
-                    Err(_) => HttpResponse::InternalServerError().body("Error updating enrollment status"),
+                    Err(_) => {
+                        HttpResponse::InternalServerError().body("Error updating enrollment status")
+                    }
                 }
             }
             _ => HttpResponse::Unauthorized().body("Invalid role"),
@@ -308,18 +305,16 @@ async fn add_prepod_courses(
                     }
                 };
 
-                for new_theme in &user.nametheme {
-                    let insert_result = sqlx::query!(
-                        "INSERT INTO themes (nametheme, id_courses) VALUES ($1, $2)",
-                        new_theme,
-                        id_courses
-                    )
-                    .execute(&**db_pool)
-                    .await;
+                let insert_result = sqlx::query!(
+                    "INSERT INTO themes (nametheme, id_courses) VALUES ($1, $2)",
+                    user.nametheme,
+                    id_courses
+                )
+                .execute(&**db_pool)
+                .await;
 
-                    if insert_result.is_err() {
-                        return HttpResponse::InternalServerError().body("Error adding new theme");
-                    }
+                if insert_result.is_err() {
+                    return HttpResponse::InternalServerError().body("Error adding new theme");
                 }
 
                 HttpResponse::Ok().body("New themes added successfully")
@@ -540,15 +535,14 @@ async fn get_user_courses_list(
 
             match user_courses_list {
                 Ok(userinfo) => {
-                    let (enrolled_courses, not_enrolled_courses): (Vec<_>, Vec<_>) = userinfo
-                        .into_iter()
-                        .partition(|course| course.enrollment);
+                    let (enrolled_courses, not_enrolled_courses): (Vec<_>, Vec<_>) =
+                        userinfo.into_iter().partition(|course| course.enrollment);
 
                     let enrolled_courses: Vec<String> = enrolled_courses
                         .into_iter()
                         .map(|course| course.namecourses)
                         .collect();
-                    
+
                     let not_enrolled_courses: Vec<String> = not_enrolled_courses
                         .into_iter()
                         .map(|course| course.namecourses)
@@ -566,9 +560,6 @@ async fn get_user_courses_list(
         Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении ID пользователя"),
     }
 }
-
-
-
 
 #[post("/get_topics_by_course")]
 async fn get_topics_by_course(
@@ -598,8 +589,6 @@ async fn get_topics_by_course(
     }
 }
 
-
-
 #[post("/unenrolled_courses")]
 async fn unenrolled_courses(
     user: web::Json<UserAuthentication>,
@@ -626,28 +615,32 @@ async fn unenrolled_courses(
 
                 match unenrolled_courses_result {
                     Ok(rows) => {
-                        let courses: Vec<UnenrolledCourse> = rows.into_iter().map(|row| UnenrolledCourse {
-                            mail: row.mail.unwrap_or_else(|| "".to_string()),
-                            surname: row.surname.unwrap_or_else(|| "".to_string()),
-                            firstname: row.firstname.unwrap_or_else(|| "".to_string()),
-                            lastname: row.lastname.unwrap_or_else(|| "".to_string()),
-                            course_name: row.course_name.unwrap_or_else(|| "".to_string()),
-                        }).collect();
+                        let courses: Vec<UnenrolledCourse> = rows
+                            .into_iter()
+                            .map(|row| UnenrolledCourse {
+                                mail: row.mail.unwrap_or_else(|| "".to_string()),
+                                surname: row.surname.unwrap_or_else(|| "".to_string()),
+                                firstname: row.firstname.unwrap_or_else(|| "".to_string()),
+                                lastname: row.lastname.unwrap_or_else(|| "".to_string()),
+                                course_name: row.course_name.unwrap_or_else(|| "".to_string()),
+                            })
+                            .collect();
 
                         HttpResponse::Ok().json(courses)
                     }
-                    Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении данных"),
+                    Err(_) => {
+                        HttpResponse::InternalServerError().body("Ошибка при получении данных")
+                    }
                 }
             } else {
                 HttpResponse::Forbidden().body("Недостаточно прав для просмотра данных")
             }
         }
-        Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении роли пользователя"),
+        Err(_) => {
+            HttpResponse::InternalServerError().body("Ошибка при получении роли пользователя")
+        }
     }
 }
-
-
-
 
 #[post("/enrolled_courses_list")]
 async fn enrolled_courses_list(
@@ -696,7 +689,8 @@ async fn enrolled_courses_list(
                             let course_name = row.course_name.clone();
                             let student = row.student.unwrap_or_else(|| "".to_string()); // Обработка Option<String>
 
-                            if course_name != current_course_name && !current_course_name.is_empty() {
+                            if course_name != current_course_name && !current_course_name.is_empty()
+                            {
                                 courses.push(EnrolledCoursesList {
                                     course_name: current_course_name.clone(),
                                     students: students.clone(),
@@ -718,7 +712,9 @@ async fn enrolled_courses_list(
 
                         HttpResponse::Ok().json(courses)
                     }
-                    Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении данных"),
+                    Err(_) => {
+                        HttpResponse::InternalServerError().body("Ошибка при получении данных")
+                    }
                 }
             }
             _ => HttpResponse::Unauthorized().body("Неверная роль"),
@@ -726,12 +722,6 @@ async fn enrolled_courses_list(
         Err(_) => HttpResponse::InternalServerError().body("Ошибка при входе"),
     }
 }
-
-
-
-
-
-
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

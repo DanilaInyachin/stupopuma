@@ -72,7 +72,7 @@ pub struct RegisterUserCourses {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddPrepodCourses {
-    pub nametheme: Vec<String>,
+    pub nametheme: String,
     pub token: String,
     pub nameCourses: String,
 }
@@ -159,9 +159,7 @@ pub struct CourseTopic {
 #[derive(Serialize, Deserialize)]
 pub struct NameCourses {
     pub namecourses: String,
-
 }
-
 
 #[derive(serde::Serialize)]
 pub struct UnenrolledCourse {
@@ -172,13 +170,10 @@ pub struct UnenrolledCourse {
     pub course_name: String,
 }
 
-
-
 #[derive(Deserialize)]
 pub struct UserToken {
     pub token: String,
 }
-
 
 #[derive(Serialize)]
 pub struct EnrolledCoursesList {
