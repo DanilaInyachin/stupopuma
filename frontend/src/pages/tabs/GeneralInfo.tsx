@@ -191,7 +191,7 @@ const GeneralInfo: FC = () => {
                 color="error"
                 onClick={handleDeleteClick}
               >
-                {t('Delete Account')}
+                {t('Delete account')}
               </Button>
             </Grid>
           </Grid>
