@@ -5,7 +5,11 @@ import ElementCourse from '../../components/ElementCourse';
 import { useNavigate } from 'react-router-dom';
 import CurrentUserContext from '../../context';
 
-const AllCourses: FC = () => {
+interface AllCourseProps {
+  needButton?: boolean;
+}
+
+const AllCourses: FC<AllCourseProps> = ({ needButton = true }) => {
   const [namecourses, setNamecourses] = useState<string[]>([]);
   const navigate = useNavigate();
   const context = useContext(CurrentUserContext);
@@ -35,7 +39,11 @@ const AllCourses: FC = () => {
         Here is the list of all available courses.
       </Typography>
       {namecourses.map((course) => (
-        <ElementCourse key={course} namecourse={course} />
+        <ElementCourse
+          key={course}
+          namecourse={course}
+          needButton={needButton}
+        />
       ))}
     </Box>
   );
