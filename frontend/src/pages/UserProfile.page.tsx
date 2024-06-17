@@ -17,30 +17,6 @@ const VerticalTabs = styled(Tabs)({
 type Role = 'Администратор' | 'Преподаватель' | 'Ученик';
 
 const UserProfilePage: FC = () => {
-  const { t } = useTranslation();
-  const [value, setValue] = useState(0);
-  const [role, setRole] = useState<Role>('Ученик');
-  const navigate = useNavigate();
-  const context = useContext(CurrentUserContext);
-
-  useEffect(() => {
-    if (!context || !context.isAuthAndToken) {
-      navigate('/signin');
-    } else {
-      axios
-        .post('//localhost:8080/view_user', {
-          token: context.isAuthAndToken,
-        })
-        .then((response) => {
-          console.log(response);
-          setRole(response.data.role);
-        })
-        .catch((error) => {
-          console.error('Error: ', error);
-        });
-    }
-  }, [context, navigate]);
-
   const getTabs = (role: Role) => {
     switch (role) {
       case 'Ученик':
@@ -68,7 +44,31 @@ const UserProfilePage: FC = () => {
     }
   };
 
-  const [tabs] = useState(getTabs(role));
+  const { t } = useTranslation();
+  const [value, setValue] = useState(0);
+  const [role, setRole] = useState<Role>('Ученик');
+  const [tabs, setTabs] = useState(getTabs(role));
+  const navigate = useNavigate();
+  const context = useContext(CurrentUserContext);
+
+  useEffect(() => {
+    if (!context || !context.isAuthAndToken) {
+      navigate('/signin');
+    } else {
+      axios
+        .post('//localhost:8080/view_user', {
+          token: context.isAuthAndToken,
+        })
+        .then((response) => {
+          console.log(response);
+          setRole(response.data.role);
+          setTabs(getTabs(response.data.role));
+        })
+        .catch((error) => {
+          console.error('Error: ', error);
+        });
+    }
+  }, [context, navigate, setRole, setTabs, getTabs]);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
