@@ -121,10 +121,10 @@ pub struct ViewUser {
 
 #[derive(serde::Serialize)]
 pub struct ResponseUser {
-    pub lastname: String,
-    pub firstname: String,
-    pub surname: String,
     pub role: String,
+    pub surname: String,
+    pub firstname: String,
+    pub lastname: String,
 }
 
 impl ResponseUser {
