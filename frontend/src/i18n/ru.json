@@ -22,11 +22,34 @@
             "Sign up": "Зарегистрироваться",
             "Welcome": "Добро пожаловать в СтуПопуМа",
             "Create account": "Создайте новый аккаунт",
+            "Last name": "Фамилия",
+            "First name": "Имя",
+            "Sur name": "Отчество",
+            "Role": "Роль",
 
             "User profile": "Профиль пользователя",
             "General info": "Общая информация",
             "All courses": "Все курсы",
-            "Followed courses": "Отслеживаемые курсы"
+            "Followed courses": "Отслеживаемые курсы",
+            "Requests": "Заявки",
+            "List students": "Список группы",
+            "Add new course": "Добавить новый курс",
+            "Change course": "Изменить курс",
+            "Add theme": "Добавить тему",
+            "Change theme": "Изменить тему",
+            "Name of new course": "Название нового курса",
+            "Name of course": "Название курса",
+            "Name of theme": "Название темы",
+            "My courses": "Мои курсы",
+            "Under consideration": "На рассмотрении",
+            
+            "Enter": "Добавить",
+            "Save": "Сохранить",
+            "Cancel": "Отмена",
+            "Edit": "Изменить",
+            "Confirm": "Согласиться",
+            "Delete account": "Удалить аккаунт",
+            "Dialog warning": "Вы уверены, что хотите удалить свою учетную запись? Это действие не может быть отменено."
         }
     }
 }

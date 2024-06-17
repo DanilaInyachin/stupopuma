@@ -22,11 +22,33 @@
             "Sign up": "Sign up here",
             "Welcome": "Welcome to StuPopuMa",
             "Create account": "Create new your account",
+            "Last name": "Last name",
+            "First name": "First name",
+            "Sur name": "Middle name",
+            "Role": "Role",
 
             "User profile": "User profile",
             "General info": "General info",
             "All courses": "All courses",
-            "Followed courses": "Followed courses"
+            "Followed courses": "Followed courses",
+            "Requests": "Requests",
+            "List students": "List of students",
+            "Add new course": "Add new course",
+            "Change course": "Change course",
+            "Add theme": "Add theme",
+            "Change theme": "Change theme",
+            "Name of new course": "Name of new course",
+            "Name of course": "Name of course",
+            "Name of theme": "Name of theme",
+            "My courses": "My courses",
+            "Under consideration": "Under consideration",
+            
+            "Enter": "Enter",
+            "Save": "Save",
+            "Cancel": "Cancel",
+            "Edit": "Edit",
+            "Confirm": "Confirmelete account",
+            "Dialog warning": "Are you sure you want to delete your account? This action cannot be undone."
         }
     }
 }

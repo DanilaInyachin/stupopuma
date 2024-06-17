@@ -10,6 +10,7 @@ import {
 import axios from 'axios';
 import CurrentUserContext from '../../context';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface IRequest {
   mail: string;
@@ -23,6 +24,7 @@ const Requests: FC = () => {
   const [requests, setRequests] = useState<IRequest[]>([]);
   const context = useContext(CurrentUserContext);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const fetchRequests = useCallback(() => {
     if (context && context.isAuthAndToken) {
@@ -69,10 +71,7 @@ const Requests: FC = () => {
   return (
     <Box>
       <Typography variant="h6" component="h2">
-        Requests
-      </Typography>
-      <Typography variant="body1">
-        Here is the list of all pending course requests.
+        {t('Requests')}
       </Typography>
       <List>
         {requests.map((request, index) => (
@@ -92,7 +91,7 @@ const Requests: FC = () => {
               color="primary"
               onClick={() => handleConfirm(request)}
             >
-              Confirm
+              {t('Confirm')}
             </Button>
           </ListItem>
         ))}
