@@ -44,25 +44,24 @@ const AllCourses: FC<AllCourseProps> = ({ needButton = true }) => {
           console.error('Error: ', error);
         });
     }
-  }, [context, navigate, setNamecourses]);
+  }, [context, navigate, setNamecourses, setRole]);
 
   const handleAddCourse = () => {
     if (context && context.isAuthAndToken) {
-      // axios
-      //   .post('//localhost:8080/add_course', {
-      //     nameCourses: newCourseName,
-      //     token: context.isAuthAndToken,
-      //   })
-      //   .then((response) => {
-      //     console.log(response);
-      //     setNewCourseName('');
-      //     setAddingCourse(false);
-      //     setNamecourses((prev) => [...prev, newCourseName]); // Добавляем новый курс в локальный state
-      //   })
-      //   .catch((error) => {
-      //     console.error('Error: ', error);
-      //   });
-      console.log("NEW Course: ", newCourseName);
+      axios
+        .post('//localhost:8080/add_courses', {
+          token: context.isAuthAndToken,
+          nameCourses: newCourseName,
+        })
+        .then((response) => {
+          console.log(response);
+          setNewCourseName('');
+          setAddingCourse(false);
+          // setNamecourses((prev) => [...prev, newCourseName]); // Добавляем новый курс в локальный state
+        })
+        .catch((error) => {
+          console.error('Error: ', error);
+        });
     }
   };
 
@@ -99,9 +98,9 @@ const AllCourses: FC<AllCourseProps> = ({ needButton = true }) => {
                 variant="outlined"
                 value={newCourseName}
                 onChange={(e) => setNewCourseName(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') handleAddCourse();
-                }}
+                // onKeyPress={(e) => {
+                //   if (e.key === 'Enter') handleAddCourse();
+                // }}
               />
               <Button
                 variant="contained"
