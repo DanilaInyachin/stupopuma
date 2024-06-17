@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import CurrentUserContext from '../../context';
 import axios from 'axios';
 import ElementCourse from '../../components/ElementCourse';
+import { useTranslation } from 'react-i18next';
 
 interface IUserCourses {
   enrolled_courses: string[];
@@ -19,6 +20,7 @@ const UserCourses: FC = () => {
   const [userCourses, setuserCourses] = useState<IUserCourses>(initailState);
   const navigate = useNavigate();
   const context = useContext(CurrentUserContext);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!context || !context.isAuthAndToken) {
@@ -41,21 +43,14 @@ const UserCourses: FC = () => {
   return (
     <Box>
       <Typography variant="h6" component="h2">
-        Your Courses
-      </Typography>
-      <Typography variant="body1">
-        Here is the list of courses you are enrolled in.
-      </Typography>
-      <Divider />
-      <Typography variant="h6" component="h2">
-        Мои курсы
+        {t('My courses')}
       </Typography>
       {userCourses.enrolled_courses.map((course) => (
         <ElementCourse key={course} namecourse={course} needButton={false} />
       ))}
       <Divider />
       <Typography variant="h6" component="h2">
-        На рассмотрении
+        {t('Under consideration')}
       </Typography>
       {userCourses.not_enrolled_courses.map((course) => (
         <ElementCourse key={course} namecourse={course} needButton={false} />

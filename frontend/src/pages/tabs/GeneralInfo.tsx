@@ -14,6 +14,7 @@ import CurrentUserContext from '../../context';
 import axios from 'axios';
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import FormInput from '../../components/FormInput';
+import { useTranslation } from 'react-i18next';
 
 interface IUserInfoResponse {
   data: IUserInfo;
@@ -40,6 +41,7 @@ const GeneralInfo: FC = () => {
   const [data, setData] = useState<IUserInfo>(initialState);
   const navigate = useNavigate();
   const context = useContext(CurrentUserContext);
+  const { t } = useTranslation();
 
   const methods = useForm<IUserInfo>({
     defaultValues: initialState,
@@ -128,23 +130,28 @@ const GeneralInfo: FC = () => {
         <Box component="form" noValidate autoComplete="off">
           <FormInput
             name="lastname"
-            label="Lastname"
+            label={t('Last name')}
             variant="standard"
             disabled={!isEditable}
           />
           <FormInput
             name="firstname"
-            label="Firstname"
+            label={t('First name')}
             variant="standard"
             disabled={!isEditable}
           />
           <FormInput
             name="surname"
-            label="Surname"
+            label={t('Sur name')}
             variant="standard"
             disabled={!isEditable}
           />
-          <FormInput name="role" label="Role" variant="standard" disabled />
+          <FormInput
+            name="role"
+            label={t('Role')}
+            variant="standard"
+            disabled
+          />
           <Grid container spacing={2} sx={{ mt: 2 }}>
             {isEditable ? (
               <>
@@ -154,7 +161,7 @@ const GeneralInfo: FC = () => {
                     color="primary"
                     onClick={handleSaveClick}
                   >
-                    Save
+                    {t('Save')}
                   </Button>
                 </Grid>
                 <Grid item>
@@ -163,7 +170,7 @@ const GeneralInfo: FC = () => {
                     color="secondary"
                     onClick={handleCancelClick}
                   >
-                    Cancel
+                    {t('Cancel')}
                   </Button>
                 </Grid>
               </>
@@ -174,7 +181,7 @@ const GeneralInfo: FC = () => {
                   color="primary"
                   onClick={handleEditClick}
                 >
-                  Edit
+                  {t('Edit')}
                 </Button>
               </Grid>
             )}
@@ -184,7 +191,7 @@ const GeneralInfo: FC = () => {
                 color="error"
                 onClick={handleDeleteClick}
               >
-                Delete Account
+                {t('Delete Account')}
               </Button>
             </Grid>
           </Grid>
@@ -194,16 +201,15 @@ const GeneralInfo: FC = () => {
       <Dialog open={open} onClose={handleClose}>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete your account? This action cannot be
-            undone.
+            {t('Dialog warning')}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button onClick={handleConfirmDelete} color="error" autoFocus>
-            Confirm
+            {t('Confirm')}
           </Button>
         </DialogActions>
       </Dialog>

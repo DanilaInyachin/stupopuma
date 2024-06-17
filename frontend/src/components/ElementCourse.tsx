@@ -12,6 +12,7 @@ import {
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import CurrentUserContext from '../context';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 interface ICourse {
   namecourses: string;
@@ -37,6 +38,7 @@ const ElementCourse: FC<ElementCourseProps> = ({
   const [isEditingCourse, setIsEditingCourse] = useState(false);
   const [isAddingTopic, setIsAddingTopic] = useState(false);
   const [newTopicName, setNewTopicName] = useState('');
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (context) {
@@ -140,22 +142,22 @@ const ElementCourse: FC<ElementCourseProps> = ({
               color="primary"
               onClick={() => setIsEditingCourse(true)}
             >
-              Изменить курс
+              {t('Change course')}
             </Button>
             <Button
               variant="outlined"
               color="primary"
               onClick={() => setIsAddingTopic(true)}
             >
-              Добавить тему
+              {t('Add theme')}
             </Button>
             <Button variant="outlined" color="primary">
-              Изменить тему
+              {t('Change theme')}
             </Button>
             {isEditingCourse && (
               <Box sx={{ display: 'flex', flexDirection: 'column', mt: 2 }}>
                 <TextField
-                  label="Название курса"
+                  label={t('Name of course')}
                   variant="outlined"
                   value={editCourseName}
                   onChange={(e) => setEditCourseName(e.target.value)}
@@ -169,14 +171,14 @@ const ElementCourse: FC<ElementCourseProps> = ({
                   onClick={handleEditCourse}
                   sx={{ mt: 2 }}
                 >
-                  Enter
+                  {t('Enter')}
                 </Button>
               </Box>
             )}
             {isAddingTopic && (
               <Box sx={{ display: 'flex', flexDirection: 'column', mt: 2 }}>
                 <TextField
-                  label="Название темы"
+                  label={t('Name of theme')}
                   variant="outlined"
                   value={newTopicName}
                   onChange={(e) => setNewTopicName(e.target.value)}
@@ -190,7 +192,7 @@ const ElementCourse: FC<ElementCourseProps> = ({
                   onClick={handleAddTopic}
                   sx={{ mt: 2 }}
                 >
-                  Enter
+                  {t('Enter')}
                 </Button>
               </Box>
             )}

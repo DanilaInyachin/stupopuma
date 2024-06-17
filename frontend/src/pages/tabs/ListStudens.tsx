@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import CurrentUserContext from '../../context';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface IListStudents {
   course_name: string;
@@ -20,6 +21,7 @@ const ListStudens = () => {
   ]);
   const context = useContext(CurrentUserContext);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!context || !context.isAuthAndToken) {
@@ -42,10 +44,7 @@ const ListStudens = () => {
   return (
     <Box>
       <Typography variant="h6" component="h2">
-        List of students
-      </Typography>
-      <Typography variant="body1">
-        Here is the list of all pending list of students.
+        {t('List students')}
       </Typography>
       <List>
         {listsStudents.map((list, index) => (

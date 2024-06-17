@@ -4,6 +4,7 @@ import axios from 'axios';
 import ElementCourse from '../../components/ElementCourse';
 import { useNavigate } from 'react-router-dom';
 import CurrentUserContext from '../../context';
+import { useTranslation } from 'react-i18next';
 
 type Role = 'Администратор' | 'Преподаватель' | 'Ученик';
 
@@ -18,6 +19,7 @@ const AllCourses: FC<AllCourseProps> = ({ needButton = true }) => {
   const [role, setRole] = useState<Role>('Ученик');
   const [newCourseName, setNewCourseName] = useState('');
   const [addingCourse, setAddingCourse] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!context || !context.isAuthAndToken) {
@@ -68,20 +70,17 @@ const AllCourses: FC<AllCourseProps> = ({ needButton = true }) => {
   return (
     <Box>
       <Typography variant="h6" component="h2">
-        All Courses
-      </Typography>
-      <Typography variant="body1">
-        Here is the list of all available courses.
+        {t('All courses')}
       </Typography>
       {namecourses.map((course) => (
         <ElementCourse
           key={course}
           namecourse={course}
           needButton={needButton}
-          isTeacher={role === 'Преподаватель'}
+          isTeacher={role === 'Преподаватель' || role === 'Администратор'}
         />
       ))}
-      {role === 'Преподаватель' && (
+      {role === 'Преподаватель' || role === 'Администратор' && (
         <Box sx={{ mt: 2 }}>
           {!addingCourse ? (
             <Button
@@ -89,12 +88,12 @@ const AllCourses: FC<AllCourseProps> = ({ needButton = true }) => {
               color="primary"
               onClick={() => setAddingCourse(true)}
             >
-              Добавить новый курс
+              {t('Add new course')}
             </Button>
           ) : (
             <Box sx={{ display: 'flex', flexDirection: 'column', mt: 2 }}>
               <TextField
-                label="Название нового курса"
+                label={t('Name of new course')}
                 variant="outlined"
                 value={newCourseName}
                 onChange={(e) => setNewCourseName(e.target.value)}
@@ -108,7 +107,7 @@ const AllCourses: FC<AllCourseProps> = ({ needButton = true }) => {
                 onClick={handleAddCourse}
                 sx={{ mt: 2 }}
               >
-                Enter
+                {t('Enter')}
               </Button>
             </Box>
           )}
