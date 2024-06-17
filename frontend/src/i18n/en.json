@@ -47,7 +47,8 @@
             "Save": "Save",
             "Cancel": "Cancel",
             "Edit": "Edit",
-            "Confirm": "Confirmelete account",
+            "Confirm": "Confirm",
+            "Delete account": "Delete account",
             "Dialog warning": "Are you sure you want to delete your account? This action cannot be undone."
         }
     }
