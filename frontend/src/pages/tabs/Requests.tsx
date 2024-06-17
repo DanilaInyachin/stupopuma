@@ -31,7 +31,6 @@ const Requests: FC = () => {
   const navigate = useNavigate();
 
   const fetchRequests = () => {
-    axios;
     axios
       .post('//localhost:8080/unenrolled_courses', {
         token: context?.isAuthAndToken,
