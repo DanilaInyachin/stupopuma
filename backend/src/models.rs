@@ -72,7 +72,7 @@ pub struct RegisterUserCourses {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AddPrepodCourses {
-    pub nametheme: Vec<String>,
+    pub nametheme: String,
     pub token: String,
     pub nameCourses: String,
 }
@@ -121,10 +121,10 @@ pub struct ViewUser {
 
 #[derive(serde::Serialize)]
 pub struct ResponseUser {
-    pub lastname: String,
-    pub firstname: String,
-    pub surname: String,
     pub role: String,
+    pub surname: String,
+    pub firstname: String,
+    pub lastname: String,
 }
 
 impl ResponseUser {
@@ -159,5 +159,31 @@ pub struct CourseTopic {
 #[derive(Serialize, Deserialize)]
 pub struct NameCourses {
     pub namecourses: String,
+}
 
+#[derive(serde::Serialize)]
+pub struct UnenrolledCourse {
+    pub mail: String,
+    pub surname: String,
+    pub firstname: String,
+    pub lastname: String,
+    pub course_name: String,
+}
+
+#[derive(Deserialize)]
+pub struct UserToken {
+    pub token: String,
+}
+
+#[derive(Serialize)]
+pub struct EnrolledCoursesList {
+    pub course_name: String,
+    pub students: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct EditCourse {
+    pub token: String,
+    pub name_courses: String,
+    pub new_name_courses: String,
 }

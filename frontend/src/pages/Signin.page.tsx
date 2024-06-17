@@ -18,7 +18,7 @@ import styled from '@emotion/styled';
 import { LoadingButton } from '@mui/lab';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
-import CurrentUserContext from '../contex';
+import CurrentUserContext from '../context';
 
 // 👇 Styled React Route Dom Link Component
 export const LinkItem = styled(Link)`
@@ -91,9 +91,9 @@ const SigninPage: FC = () => {
       if (context) {
         context.setIsAuthAndToken(values.email);
       }
-      navigate('/profile')
+      navigate('/profile');
     } catch (error) {
-      // TODO: 401 обработать 
+      // TODO: 401 обработать
       console.error('Error: ', error);
     }
   };

@@ -16,7 +16,7 @@ import styled from '@emotion/styled';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
-import CurrentUserContext from '../contex';
+import CurrentUserContext from '../context';
 
 // 👇 Styled React Route Dom Link Component
 export const LinkItem = styled(Link)`
