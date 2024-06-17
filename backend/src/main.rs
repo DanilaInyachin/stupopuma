@@ -325,6 +325,9 @@ async fn add_prepod_courses(
     }
 }
 
+
+
+
 #[put("/change_prepod_courses")] //изменение тем в курсе
 async fn change_prepod_courses(
     user: web::Json<ChangePrepodCourses>,
@@ -501,9 +504,10 @@ async fn view_user(
             match user_data_result {
                 Ok(userinfo) => HttpResponse::Ok().json(ResponseUser {
                     role: userinfo.role,
+                 
                     surname: userinfo.surname.unwrap_or_else(|| "".to_string()),
-                    firstname: userinfo.firstname.unwrap_or_else(|| "".to_string()),
                     lastname: userinfo.lastname.unwrap_or_else(|| "".to_string()),
+                    firstname: userinfo.firstname.unwrap_or_else(|| "".to_string()),
                 }),
                 Err(_) => HttpResponse::InternalServerError()
                     .body("Ошибка при получении данных пользователя"),
