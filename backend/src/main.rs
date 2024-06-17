@@ -560,33 +560,46 @@ async fn get_topics_by_course(
 
 #[get("/unenrolled_courses")]
 async fn unenrolled_courses(
+    user: web::Json<UserAuthentication>,
     db_pool: web::Data<PgPool>,
-    user: web::Json<UserAuthentication>
 ) -> impl Responder {
-    let unenrolled_courses = sqlx::query!(
-        r#"
-        SELECT users.surname, users.firstname, users.lastname, courses.namecourses AS course_name
-        FROM listcourses
-        JOIN users ON listcourses.users_id = users.id
-        JOIN courses ON listcourses.courses_id = courses.id
-        WHERE listcourses.enrollment = FALSE
-        "#
-    )
-    .fetch_all(&**db_pool)
-    .await;
+    let result = sqlx::query!("SELECT role FROM users WHERE mail = $1", user.token)
+        .fetch_one(&**db_pool)
+        .await;
 
-    match unenrolled_courses {
-        Ok(rows) => {
-            let courses: Vec<UnenrolledCourse> = rows.into_iter().map(|row| UnenrolledCourse {
-                surname: row.surname.unwrap_or_else(|| "".to_string()),
-                firstname: row.firstname.unwrap_or_else(|| "".to_string()),
-                lastname: row.lastname.unwrap_or_else(|| "".to_string()),
-                course_name: row.course_name.unwrap_or_else(|| "".to_string()),
-            }).collect();
+    match result {
+        Ok(record) => {
+            if record.role == "Администратор" {
+                let unenrolled_courses_result = sqlx::query!(
+                    r#"
+                    SELECT users.surname, users.firstname, users.lastname, courses.namecourses AS course_name
+                    FROM listcourses
+                    JOIN users ON listcourses.users_id = users.id
+                    JOIN courses ON listcourses.courses_id = courses.id
+                    WHERE listcourses.enrollment = FALSE
+                    "#
+                )
+                .fetch_all(&**db_pool)
+                .await;
 
-            HttpResponse::Ok().json(courses)
+                match unenrolled_courses_result {
+                    Ok(rows) => {
+                        let courses: Vec<UnenrolledCourse> = rows.into_iter().map(|row| UnenrolledCourse {
+                            surname: row.surname.unwrap_or_else(|| "".to_string()),
+                            firstname: row.firstname.unwrap_or_else(|| "".to_string()),
+                            lastname: row.lastname.unwrap_or_else(|| "".to_string()),
+                            course_name: row.course_name.unwrap_or_else(|| "".to_string()),
+                        }).collect();
+
+                        HttpResponse::Ok().json(courses)
+                    }
+                    Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении данных"),
+                }
+            } else {
+                HttpResponse::Forbidden().body("Недостаточно прав для просмотра данных")
+            }
         }
-        Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении данных"),
+        Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении роли пользователя"),
     }
 }
 
