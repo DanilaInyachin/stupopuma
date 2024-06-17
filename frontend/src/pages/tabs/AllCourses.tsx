@@ -1,5 +1,5 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { Typography, Box, Button } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import axios from 'axios';
 import ElementCourse from '../../components/ElementCourse';
 import { useNavigate } from 'react-router-dom';
