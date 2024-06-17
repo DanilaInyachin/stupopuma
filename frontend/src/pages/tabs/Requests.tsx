@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import React, { FC, useCallback, useContext, useEffect, useState } from 'react';
 import {
   Typography,
   Box,
@@ -30,18 +30,20 @@ const Requests: FC = () => {
   const context = useContext(CurrentUserContext);
   const navigate = useNavigate();
 
-  const fetchRequests = () => {
-    axios
-      .post('//localhost:8080/unenrolled_courses', {
-        token: context?.isAuthAndToken,
-      })
-      .then((response) => {
-        setRequests(response.data);
-      })
-      .catch((error) => {
-        console.error('Error: ', error);
-      });
-  };
+  const fetchRequests = useCallback(() => {
+    if (context && context.isAuthAndToken) {
+      axios
+        .post('//localhost:8080/unenrolled_courses', {
+          token: context.isAuthAndToken,
+        })
+        .then((response) => {
+          setRequests(response.data);
+        })
+        .catch((error) => {
+          console.error('Error: ', error);
+        });
+    }
+  }, [context]);
 
   useEffect(() => {
     if (!context || !context.isAuthAndToken) {
@@ -49,7 +51,7 @@ const Requests: FC = () => {
     } else {
       fetchRequests();
     }
-  }, [context, navigate]);
+  }, [context, navigate, fetchRequests]);
 
   const handleConfirm = (request: IRequest) => {
     if (context && context.isAuthAndToken) {
