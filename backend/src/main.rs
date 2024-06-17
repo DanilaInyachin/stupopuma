@@ -19,7 +19,7 @@ mod models;
 use models::{
     AddCourses, AddPrepodCourses, CangeUserEnrollment, ChangePrepodCourses, CoursesListResponse,
     DeleteUser, DeleteUserAdmin, LoginUser, RegisterUser, RegisterUserCourses, ResponseUser, Token,
-    UserAuthentication, СhangeUserData, СhangeUserRole, CourseTopic, NameCourses
+    UserAuthentication, СhangeUserData, СhangeUserRole, CourseTopic, NameCourses, UnenrolledCourse
 };
 
 #[post("/register")]
@@ -558,6 +558,41 @@ async fn get_topics_by_course(
 
 
 
+#[get("/unenrolled_courses")]
+async fn unenrolled_courses(
+    db_pool: web::Data<PgPool>,
+    user: web::Json<UserAuthentication>
+) -> impl Responder {
+    let unenrolled_courses = sqlx::query!(
+        r#"
+        SELECT users.surname, users.firstname, users.lastname, courses.namecourses AS course_name
+        FROM listcourses
+        JOIN users ON listcourses.users_id = users.id
+        JOIN courses ON listcourses.courses_id = courses.id
+        WHERE listcourses.enrollment = FALSE
+        "#
+    )
+    .fetch_all(&**db_pool)
+    .await;
+
+    match unenrolled_courses {
+        Ok(rows) => {
+            let courses: Vec<UnenrolledCourse> = rows.into_iter().map(|row| UnenrolledCourse {
+                surname: row.surname.unwrap_or_else(|| "".to_string()),
+                firstname: row.firstname.unwrap_or_else(|| "".to_string()),
+                lastname: row.lastname.unwrap_or_else(|| "".to_string()),
+                course_name: row.course_name.unwrap_or_else(|| "".to_string()),
+            }).collect();
+
+            HttpResponse::Ok().json(courses)
+        }
+        Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении данных"),
+    }
+}
+
+
+
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
@@ -589,6 +624,7 @@ async fn main() -> std::io::Result<()> {
             .service(view_user)
             .service(get_user_courses_list)
             .service(get_topics_by_course)
+            .service(unenrolled_courses)
             .wrap(
                 Cors::default()
                     .allow_any_origin()

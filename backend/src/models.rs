@@ -161,3 +161,12 @@ pub struct NameCourses {
     pub namecourses: String,
 
 }
+
+
+#[derive(Serialize)]
+pub struct UnenrolledCourse {
+    pub surname: String,
+    pub firstname: String,
+    pub lastname: String,
+    pub course_name: String,
+}
