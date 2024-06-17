@@ -171,3 +171,24 @@ pub struct UnenrolledCourse {
     pub lastname: String,
     pub course_name: String,
 }
+
+
+
+#[derive(Deserialize)]
+pub struct UserToken {
+    pub token: String,
+}
+
+
+#[derive(Serialize)]
+pub struct EnrolledCoursesList {
+    pub course_name: String,
+    pub students: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct EditCourse {
+    pub token: String,
+    pub name_courses: String,
+    pub new_name_courses: String,
+}
