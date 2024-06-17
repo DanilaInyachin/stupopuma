@@ -19,10 +19,10 @@ mod models;
 use models::{
     AddCourses, AddPrepodCourses, CangeUserEnrollment, ChangePrepodCourses, CoursesListResponse,
     DeleteUser, DeleteUserAdmin, LoginUser, RegisterUser, RegisterUserCourses, ResponseUser, Token,
-    UserAuthentication, СhangeUserData, СhangeUserRole, CourseTopic, NameCourses, UnenrolledCourse
+    UserAuthentication, СhangeUserData, СhangeUserRole, CourseTopic, NameCourses, UnenrolledCourse, EnrolledCoursesList, UserToken, EditCourse
 };
 
-#[post("/register")]
+#[post("/register")] 
 async fn register_user(
     user: web::Json<RegisterUser>,
     db_pool: web::Data<PgPool>,
@@ -127,9 +127,9 @@ async fn add_courses(user: web::Json<AddCourses>, db_pool: web::Data<PgPool>) ->
         .fetch_one(&**db_pool)
         .await;
 
-    match result {
-        Ok(record) => match record.role {
-            r if r == "Администратор".to_string() => {
+        match result {
+            Ok(record) => match record.role.as_str() {
+                "Администратор" | "Преподаватель" => {
                 let response = sqlx::query!(
                     "INSERT INTO courses (namecourses) VALUES ($1);",
                     user.nameCourses,
@@ -147,6 +147,42 @@ async fn add_courses(user: web::Json<AddCourses>, db_pool: web::Data<PgPool>) ->
         Err(_) => HttpResponse::InternalServerError().body("Error logging in"),
     }
 }
+
+
+
+
+#[post("/edit_course")]
+async fn edit_course(course_data: web::Json<EditCourse>, db_pool: web::Data<PgPool>) -> HttpResponse {
+    let result = sqlx::query!("SELECT role FROM users WHERE mail = $1", course_data.token)
+        .fetch_one(&**db_pool)
+        .await;
+
+    match result {
+        Ok(record) => {
+            match record.role.as_str() {
+                "Администратор" | "Преподаватель" => {
+                    let response = sqlx::query!(
+                        "UPDATE courses SET namecourses = $1 WHERE namecourses = $2",
+                        course_data.new_name_courses,
+                        course_data.name_courses,
+                    )
+                    .execute(&**db_pool)
+                    .await;
+
+                    match response {
+                        Ok(_) => HttpResponse::Ok().body("Course name updated"),
+                        Err(_) => HttpResponse::InternalServerError().body("Failed to update course name"),
+                    }
+                }
+                _ => HttpResponse::Unauthorized().body("Invalid role"),
+            }
+        }
+        Err(_) => HttpResponse::InternalServerError().body("Error logging in"),
+    }
+}
+
+
+
 
 #[get("/view_courses")]
 async fn view_courses(db_pool: web::Data<PgPool>) -> impl Responder {
@@ -166,6 +202,8 @@ async fn view_courses(db_pool: web::Data<PgPool>) -> impl Responder {
     }
 }
 
+
+
 #[post("/register_user_courses")]
 async fn register_user_courses(
     user: web::Json<RegisterUserCourses>,
@@ -184,7 +222,8 @@ async fn register_user_courses(
 
     match (result, course_response) {
         (Ok(user_data), Ok(course_data)) => {
-            if user_data.role == "Ученик" {
+            // Проверяем, что пользователь имеет право записаться на курс
+            if user_data.role == "Ученик" || user_data.role == "Преподаватель" {
                 let insert_result = sqlx::query!(
                     "INSERT INTO listcourses (users_id, courses_id) VALUES ($1, $2);",
                     user_data.id,
@@ -207,6 +246,9 @@ async fn register_user_courses(
             .body("Ошибка при получении данных пользователя или курса"),
     }
 }
+
+
+
 
 #[put("/change_user_enrollment")]
 async fn change_user_enrollment(
@@ -607,6 +649,90 @@ async fn unenrolled_courses(
 
 
 
+#[post("/enrolled_courses_list")]
+async fn enrolled_courses_list(
+    user: web::Json<UserToken>,
+    db_pool: web::Data<sqlx::PgPool>,
+) -> impl actix_web::Responder {
+    let result = sqlx::query!("SELECT role FROM users WHERE mail = $1", user.token)
+        .fetch_one(&**db_pool)
+        .await;
+
+    match result {
+        Ok(record) => match record.role.as_str() {
+            "Администратор" | "Преподаватель" => {
+                let enrolled_courses = sqlx::query!(
+                    r#"
+                    WITH user_id_query AS (
+                        SELECT id
+                        FROM users
+                        WHERE mail = $1
+                    ), course_ids_query AS (
+                        SELECT id_course
+                        FROM prepod
+                        WHERE id_prepod = (SELECT id FROM user_id_query)
+                    )
+                    SELECT c.namecourses AS course_name,
+                           u.surname || ' ' || u.firstname || ' ' || u.lastname AS student
+                    FROM course_ids_query pc
+                    JOIN courses c ON pc.id_course = c.id
+                    JOIN listcourses lc ON c.id = lc.courses_id AND lc.enrollment = TRUE
+                    JOIN users u ON lc.users_id = u.id
+                    WHERE u.role = 'Ученик'
+                    ORDER BY c.namecourses;
+                    "#,
+                    user.token
+                )
+                .fetch_all(&**db_pool)
+                .await;
+
+                match enrolled_courses {
+                    Ok(rows) => {
+                        let mut courses: Vec<EnrolledCoursesList> = Vec::new();
+                        let mut current_course_name = String::new();
+                        let mut students: Vec<String> = Vec::new();
+
+                        for row in rows {
+                            let course_name = row.course_name.clone();
+                            let student = row.student.unwrap_or_else(|| "".to_string()); // Обработка Option<String>
+
+                            if course_name != current_course_name && !current_course_name.is_empty() {
+                                courses.push(EnrolledCoursesList {
+                                    course_name: current_course_name.clone(),
+                                    students: students.clone(),
+                                });
+                                students.clear();
+                            }
+
+                            current_course_name = course_name;
+                            students.push(student);
+                        }
+
+                        // Добавление последнего курса
+                        if !current_course_name.is_empty() {
+                            courses.push(EnrolledCoursesList {
+                                course_name: current_course_name,
+                                students,
+                            });
+                        }
+
+                        HttpResponse::Ok().json(courses)
+                    }
+                    Err(_) => HttpResponse::InternalServerError().body("Ошибка при получении данных"),
+                }
+            }
+            _ => HttpResponse::Unauthorized().body("Неверная роль"),
+        },
+        Err(_) => HttpResponse::InternalServerError().body("Ошибка при входе"),
+    }
+}
+
+
+
+
+
+
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
@@ -639,6 +765,8 @@ async fn main() -> std::io::Result<()> {
             .service(get_user_courses_list)
             .service(get_topics_by_course)
             .service(unenrolled_courses)
+            .service(enrolled_courses_list)
+            .service(edit_course)
             .wrap(
                 Cors::default()
                     .allow_any_origin()
