@@ -124,7 +124,7 @@ const GeneralInfo: FC = () => {
   return (
     <Box>
       <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-        General Information
+        {t('General info')}
       </Typography>
       <FormProvider {...methods}>
         <Box component="form" noValidate autoComplete="off">
