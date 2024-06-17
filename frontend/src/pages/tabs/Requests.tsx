@@ -11,12 +11,6 @@ import axios from 'axios';
 import CurrentUserContext from '../../context';
 import { useNavigate } from 'react-router-dom';
 
-// interface IRequest {
-//   id: number;
-//   studentName: string;
-//   courseName: string;
-// }
-
 interface IRequest {
   mail: string;
   surname: string;
@@ -43,7 +37,7 @@ const Requests: FC = () => {
           console.error('Error: ', error);
         });
     }
-  }, [context]);
+  }, [context, setRequests]);
 
   useEffect(() => {
     if (!context || !context.isAuthAndToken) {
