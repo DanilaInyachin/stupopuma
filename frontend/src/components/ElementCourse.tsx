@@ -7,6 +7,7 @@ import {
   Collapse,
   Button,
   Typography,
+  TextField,
 } from '@mui/material';
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import CurrentUserContext from '../context';
@@ -81,7 +82,7 @@ const ElementCourse: FC<ElementCourseProps> = ({
         .post('//localhost:8080/add_prepod_courses', {
           token: context.isAuthAndToken,
           nameCourses: namecourse,
-          nametheme: [newTopicName]
+          nametheme: [newTopicName],
         })
         .then((response) => {
           console.log(response);
@@ -133,24 +134,66 @@ const ElementCourse: FC<ElementCourseProps> = ({
           </Box>
         ) : null}
         {isTeacher && (
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 2 }}>
+          <Box sx={{ p: 2 }}>
             <Button
               variant="outlined"
               color="primary"
-              onClick={handleEditCourse}
+              onClick={() => setIsEditingCourse(true)}
             >
               Изменить курс
             </Button>
-            <Button variant="outlined" color="primary" onClick={handleAddTopic}>
-              Добавить тему
-            </Button>
             <Button
               variant="outlined"
               color="primary"
-              onClick={handleEditTopic}
+              onClick={() => setIsAddingTopic(true)}
             >
+              Добавить тему
+            </Button>
+            <Button variant="outlined" color="primary">
               Изменить тему
             </Button>
+            {isEditingCourse && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', mt: 2 }}>
+                <TextField
+                  label="Название курса"
+                  variant="outlined"
+                  value={editCourseName}
+                  onChange={(e) => setEditCourseName(e.target.value)}
+                  // onKeyPress={(e) => {
+                  //   if (e.key === 'Enter') handleEditCourse();
+                  // }}
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleEditCourse}
+                  sx={{ mt: 2 }}
+                >
+                  Enter
+                </Button>
+              </Box>
+            )}
+            {isAddingTopic && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', mt: 2 }}>
+                <TextField
+                  label="Название темы"
+                  variant="outlined"
+                  value={newTopicName}
+                  onChange={(e) => setNewTopicName(e.target.value)}
+                  // onKeyPress={(e) => {
+                  //   if (e.key === 'Enter') handleAddTopic();
+                  // }}
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleAddTopic}
+                  sx={{ mt: 2 }}
+                >
+                  Enter
+                </Button>
+              </Box>
+            )}
           </Box>
         )}
       </Collapse>
