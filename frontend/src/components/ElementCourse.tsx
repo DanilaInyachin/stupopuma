@@ -20,23 +20,30 @@ interface ICourse {
 
 interface ElementCourseProps {
   namecourse: string;
+  needButton?: boolean;
 }
 
-const ElementCourse: FC<ElementCourseProps> = ({ namecourse }) => {
+const ElementCourse: FC<ElementCourseProps> = ({
+  namecourse,
+  needButton = true,
+}) => {
   const [open, setOpen] = useState(false);
   const [courses, setCourses] = useState<ICourse[]>([]);
   const context = useContext(CurrentUserContext);
 
   useEffect(() => {
     if (context) {
-      axios.post('//localhost:8080/get_topics_by_course', {
-        namecourses: namecourse
-      }).then((response) => {
-        console.log(response);
-        setCourses(response.data);
-      }).catch((error) => {
-        console.error('Error: ', error);
-      })
+      axios
+        .post('//localhost:8080/get_topics_by_course', {
+          namecourses: namecourse,
+        })
+        .then((response) => {
+          console.log(response);
+          setCourses(response.data);
+        })
+        .catch((error) => {
+          console.error('Error: ', error);
+        });
     }
   }, [context, namecourse, setCourses]);
 
@@ -46,12 +53,14 @@ const ElementCourse: FC<ElementCourseProps> = ({ namecourse }) => {
 
   const handleEnroll = () => {
     if (context && context.isAuthAndToken) {
-      axios.post('//localhost:8080/register_user_courses', {
-        nameCourses: namecourse,
-        token: context.isAuthAndToken
-      }).catch((error) => {
-        console.error('Error: ', error);
-      })
+      axios
+        .post('//localhost:8080/register_user_courses', {
+          nameCourses: namecourse,
+          token: context.isAuthAndToken,
+        })
+        .catch((error) => {
+          console.error('Error: ', error);
+        });
     }
   };
 
@@ -69,11 +78,15 @@ const ElementCourse: FC<ElementCourseProps> = ({ namecourse }) => {
             </ListItem>
           ))}
         </List>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
-          <Button variant="contained" color="primary" onClick={handleEnroll}>
-            Enroll
-          </Button>
-        </Box>
+        {needButton ? (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
+            <Button variant="contained" color="primary" onClick={handleEnroll}>
+              Enroll
+            </Button>
+          </Box>
+        ) : (
+          <></>
+        )}
       </Collapse>
     </Box>
   );
