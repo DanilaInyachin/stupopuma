@@ -476,7 +476,7 @@ async fn view_user(
     }
 }
 
-#[get("/get_user_courses_list")]
+#[post("/get_user_courses_list")]
 async fn get_user_courses_list(
     db_pool: web::Data<PgPool>,
     user: web::Json<UserAuthentication>,
