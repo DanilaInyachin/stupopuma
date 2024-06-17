@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import CurrentUserContext from '../context';
 import axios from 'axios';
 import Requests from './tabs/Requests';
+import ListStudens from './tabs/ListStudens';
 
 const VerticalTabs = styled(Tabs)({
   borderRight: `1px solid #ddd`,
@@ -41,6 +42,7 @@ const UserProfilePage: FC = () => {
             label: t('All courses'),
             component: <AllCourses needButton={false} />,
           },
+          { label: t('List students'), component: <ListStudens /> }
         ];
       default:
         return [
