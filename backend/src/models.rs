@@ -163,8 +163,9 @@ pub struct NameCourses {
 }
 
 
-#[derive(Serialize)]
+#[derive(serde::Serialize)]
 pub struct UnenrolledCourse {
+    pub mail: String,
     pub surname: String,
     pub firstname: String,
     pub lastname: String,
