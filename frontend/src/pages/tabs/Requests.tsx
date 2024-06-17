@@ -50,7 +50,7 @@ const Requests: FC = () => {
     } else {
       fetchRequests();
     }
-  }, [context, navigate, setRequests]);
+  }, [context, navigate]);
 
   const handleConfirm = (request: IRequest) => {
     if (context && context.isAuthAndToken) {
