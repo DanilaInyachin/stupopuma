@@ -30,7 +30,11 @@ const UserProfilePage: FC = () => {
 
   return (
     <Container maxWidth="lg">
-      <Typography variant="h4" component="h1" sx={{ textAlign: 'center', mt: 4 }}>
+      <Typography
+        variant="h4"
+        component="h1"
+        sx={{ textAlign: 'center', mt: 4 }}
+      >
         {t('User profile')}
       </Typography>
       <Grid container spacing={2} sx={{ mt: 2 }}>
