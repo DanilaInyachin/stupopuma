@@ -45,7 +45,8 @@ const Requests: FC = () => {
           console.error('Error: ', error);
         });
     }
-  });
+  }, [context, navigate, setRequests]);
+
   // const fetchRequests = () => {
   //   axios
   //     .get('//localhost:8080/view_requests', {
@@ -65,18 +66,6 @@ const Requests: FC = () => {
   // }, []);
 
   const handleConfirm = (request: IRequest) => {
-    // axios
-    //   .post('//localhost:8080/confirm_request', {
-    //     requestId,
-    //     token: context?.isAuthAndToken,
-    //   })
-    //   .then(() => {
-    //     console.log('Request confirmed:', requestId);
-    //     fetchRequests();
-    //   })
-    //   .catch((error) => {
-    //     console.error('Error confirming request: ', error);
-    //   });
     if (context && context.isAuthAndToken) {
       axios
         .put('//localhost:8080/change_user_enrollment', {
