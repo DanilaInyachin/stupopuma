@@ -12,7 +12,7 @@ import { initReactI18next } from 'react-i18next';
 import SigninPage from './pages/Signin.page';
 import SignupPage from './pages/Signup.page';
 import UserProfilePage from './pages/UserProfile.page';
-import CurrentUserContext from './contex';
+import CurrentUserContext from './context';
 
 const theme = createTheme();
 

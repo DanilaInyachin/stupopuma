@@ -1,7 +1,7 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { Typography, Box, Divider } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import CurrentUserContext from '../../contex';
+import CurrentUserContext from '../../context';
 import axios from 'axios';
 import ElementCourse from '../../components/ElementCourse';
 

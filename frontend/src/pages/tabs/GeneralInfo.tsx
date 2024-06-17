@@ -10,7 +10,7 @@ import {
   DialogActions,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import CurrentUserContext from '../../contex';
+import CurrentUserContext from '../../context';
 import axios from 'axios';
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import FormInput from '../../components/FormInput';
