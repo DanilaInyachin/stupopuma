@@ -82,7 +82,7 @@ const ElementCourse: FC<ElementCourseProps> = ({
         .put('//localhost:8080/add_prepod_courses', {
           token: context.isAuthAndToken,
           nameCourses: namecourse,
-          nametheme: [newTopicName],
+          nametheme: newTopicName,
         })
         .then((response) => {
           console.log(response);
