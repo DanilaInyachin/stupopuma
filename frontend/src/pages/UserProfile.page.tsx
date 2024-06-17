@@ -99,18 +99,10 @@ const UserProfilePage: FC = () => {
             {tabs.map((tab, index) => (
               <Tab key={index} label={tab.label} />
             ))}
-            {/* <Tab label={t('General info')} />
-            <Tab label={t('All courses')} />
-            <Tab label={t('Followed courses')} /> */}
           </VerticalTabs>
         </Grid>
         <Grid item xs={9}>
-          <Box sx={{ p: 3 }}>
-            {tabs[value].component}
-            {/* {value === 0 && <GeneralInfo />}
-            {value === 1 && <AllCourses />}
-            {value === 2 && <UserCourses />} */}
-          </Box>
+          <Box sx={{ p: 3 }}>{tabs[value].component}</Box>
         </Grid>
       </Grid>
     </Container>
