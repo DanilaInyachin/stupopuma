@@ -315,7 +315,7 @@ async fn change_prepod_courses(
     }
 }
 
-#[delete("/delete_user")]
+#[post("/delete_user")]
 async fn delete_user(user: web::Json<DeleteUser>, db_pool: web::Data<PgPool>) -> impl Responder {
     let users_id = match sqlx::query!("SELECT id FROM users WHERE mail = $1", user.token,)
         .fetch_one(&**db_pool)
