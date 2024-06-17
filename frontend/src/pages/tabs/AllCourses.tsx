@@ -1,15 +1,9 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { Typography, Box, Button } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import axios from 'axios';
 import ElementCourse from '../../components/ElementCourse';
 import { useNavigate } from 'react-router-dom';
 import CurrentUserContext from '../../contex';
-
-const hui = {
-  id: 1,
-  title: 'hui',
-  topics: ['hui1', 'hui2', 'hui3'],
-};
 
 const AllCourses: FC = () => {
   const [namecourses, setNamecourses] = useState<string[]>([]);

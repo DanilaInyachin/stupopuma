@@ -315,7 +315,7 @@ async fn change_prepod_courses(
     }
 }
 
-#[delete("/delete_user")]
+#[post("/delete_user")]
 async fn delete_user(user: web::Json<DeleteUser>, db_pool: web::Data<PgPool>) -> impl Responder {
     let users_id = match sqlx::query!("SELECT id FROM users WHERE mail = $1", user.token,)
         .fetch_one(&**db_pool)
@@ -476,7 +476,7 @@ async fn view_user(
     }
 }
 
-#[get("/get_user_courses_list")]
+#[post("/get_user_courses_list")]
 async fn get_user_courses_list(
     db_pool: web::Data<PgPool>,
     user: web::Json<UserAuthentication>,
