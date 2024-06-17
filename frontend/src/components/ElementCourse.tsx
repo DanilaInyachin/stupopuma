@@ -61,7 +61,7 @@ const ElementCourse: FC<ElementCourseProps> = ({
   const handleEditCourse = () => {
     if (context && context.isAuthAndToken) {
       axios
-        .put('//localhost:8080/edit_course', {
+        .post('//localhost:8080/edit_course', {
           token: context.isAuthAndToken,
           new_name_courses: editCourseName,
           name_courses: namecourse,
@@ -79,7 +79,7 @@ const ElementCourse: FC<ElementCourseProps> = ({
   const handleAddTopic = () => {
     if (context && context.isAuthAndToken) {
       axios
-        .post('//localhost:8080/add_prepod_courses', {
+        .put('//localhost:8080/add_prepod_courses', {
           token: context.isAuthAndToken,
           nameCourses: namecourse,
           nametheme: [newTopicName],
