@@ -723,6 +723,80 @@ async fn enrolled_courses_list(
     }
 }
 
+
+#[post("/enrolled_courses_list_admin")]
+async fn enrolled_courses_list_admin(
+    user: web::Json<UserToken>,
+    db_pool: web::Data<sqlx::PgPool>,
+) -> impl actix_web::Responder {
+    let result = sqlx::query!("SELECT role FROM users WHERE mail = $1", user.token)
+        .fetch_one(&**db_pool)
+        .await;
+
+    match result {
+        Ok(record) => match record.role.as_str() {
+            "Администратор" | "Преподаватель" => {
+                let all_users = sqlx::query!(
+                    r#"
+                    SELECT 
+                        u.surname || ' ' || u.firstname || ' ' || u.lastname AS student,
+                        CASE 
+                            WHEN u.role = 'Преподаватель' THEN 'Преподаватель'
+                            ELSE c.namecourses
+                        END AS course_name
+                    FROM users u
+                    LEFT JOIN listcourses lc ON u.id = lc.users_id AND lc.enrollment = TRUE
+                    LEFT JOIN courses c ON lc.courses_id = c.id
+                    ORDER BY course_name, student;
+                    "#
+                )
+                .fetch_all(&**db_pool)
+                .await;
+
+                match all_users {
+                    Ok(rows) => {
+                        let mut courses: Vec<EnrolledCoursesList> = Vec::new();
+                        let mut current_course_name: Option<String> = None;
+                        let mut students: Vec<String> = Vec::new();
+
+                        for row in rows {
+                            let course_name = row.course_name.clone().unwrap_or_else(|| "Без курса".to_string());
+                            let student = row.student.unwrap_or_else(|| "".to_string()); // Обработка Option<String>
+
+                            if current_course_name.is_some() && course_name != current_course_name.clone().unwrap_or_default() {
+                                courses.push(EnrolledCoursesList {
+                                    course_name: current_course_name.clone().unwrap_or_default(),
+                                    students: students.clone(),
+                                });
+                                students.clear();
+                            }
+
+                            current_course_name = Some(course_name);
+                            students.push(student);
+                        }
+
+                        // Добавление последнего курса
+                        if current_course_name.is_some() {
+                            courses.push(EnrolledCoursesList {
+                                course_name: current_course_name.unwrap_or_default(),
+                                students,
+                            });
+                        }
+
+                        HttpResponse::Ok().json(courses)
+                    }
+                    Err(_) => {
+                        HttpResponse::InternalServerError().body("Ошибка при получении данных")
+                    }
+                }
+            }
+            _ => HttpResponse::Unauthorized().body("Неверная роль"),
+        },
+        Err(_) => HttpResponse::InternalServerError().body("Ошибка при входе"),
+    }
+}
+
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
@@ -757,6 +831,7 @@ async fn main() -> std::io::Result<()> {
             .service(unenrolled_courses)
             .service(enrolled_courses_list)
             .service(edit_course)
+            .service(enrolled_courses_list_admin)
             .wrap(
                 Cors::default()
                     .allow_any_origin()
