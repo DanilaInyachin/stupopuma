@@ -1,5 +1,5 @@
 import { Box, Container, Grid, Tab, Tabs, Typography } from '@mui/material';
-import { FC, useContext, useEffect, useState } from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import GeneralInfo from './tabs/GeneralInfo';
 import AllCourses from './tabs/AllCourses';
