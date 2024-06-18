@@ -33,6 +33,7 @@ const UserProfilePage: FC = () => {
             label: t('All courses'),
             component: <AllCourses needButton={false} />,
           },
+          { label: t('List students'), component: <ListStudens /> },
           { label: t('Requests'), component: <Requests /> },
         ];
       case 'Преподаватель':
@@ -42,7 +43,7 @@ const UserProfilePage: FC = () => {
             label: t('All courses'),
             component: <AllCourses needButton={false} />,
           },
-          { label: t('List students'), component: <ListStudens /> }
+          { label: t('List students'), component: <ListStudens /> },
         ];
       default:
         return [

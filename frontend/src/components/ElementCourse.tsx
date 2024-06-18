@@ -131,7 +131,7 @@ const ElementCourse: FC<ElementCourseProps> = ({
         {needButton ? (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
             <Button variant="contained" color="primary" onClick={handleEnroll}>
-              Enroll
+              {t(`Enroll`)}
             </Button>
           </Box>
         ) : null}

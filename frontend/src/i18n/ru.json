@@ -20,7 +20,7 @@
             "Passwords do not match": "Пароли не совпадают",
             "Sign in": "Войти",
             "Sign up": "Зарегистрироваться",
-            "Welcome": "Добро пожаловать в СтуПопуМа",
+            "Welcome": "Добро пожаловать в СтуПопуМаStuPopuMa",
             "Create account": "Создайте новый аккаунт",
             "Last name": "Фамилия",
             "First name": "Имя",
@@ -32,7 +32,7 @@
             "All courses": "Все курсы",
             "Followed courses": "Отслеживаемые курсы",
             "Requests": "Заявки",
-            "List students": "Список группы",
+            "List students": "Список групп",
             "Add new course": "Добавить новый курс",
             "Change course": "Изменить курс",
             "Add theme": "Добавить тему",
@@ -48,6 +48,7 @@
             "Cancel": "Отмена",
             "Edit": "Изменить",
             "Confirm": "Одобрить",
+            "Enroll": "Записаться",
             "Delete account": "Удалить аккаунт",
             "Dialog warning": "Вы уверены, что хотите удалить свою учетную запись? Это действие не может быть отменено."
         }
