@@ -93,6 +93,9 @@ const Requests: FC = () => {
             >
               {t('Confirm')}
             </Button>
+            <Button variant="outlined" color="secondary" onClick={() => {}}>
+              {t('Cancel')}
+            </Button>
           </ListItem>
         ))}
       </List>
