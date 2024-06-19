@@ -717,25 +717,7 @@ async fn enrolled_courses_list(
                     }
                 }
             }
-            _ => HttpResponse::Unauthorized().body("Неверная роль"),
-        },
-        Err(_) => HttpResponse::InternalServerError().body("Ошибка при входе"),
-    }
-}
-
-
-#[post("/enrolled_courses_list_admin")]
-async fn enrolled_courses_list_admin(
-    user: web::Json<UserToken>,
-    db_pool: web::Data<sqlx::PgPool>,
-) -> impl actix_web::Responder {
-    let result = sqlx::query!("SELECT role FROM users WHERE mail = $1", user.token)
-        .fetch_one(&**db_pool)
-        .await;
-
-    match result {
-        Ok(record) => match record.role.as_str() {
-            "Администратор" | "Преподаватель" => {
+            "Администратор" => {
                 let all_users = sqlx::query!(
                     r#"
                     SELECT 
@@ -760,10 +742,15 @@ async fn enrolled_courses_list_admin(
                         let mut students: Vec<String> = Vec::new();
 
                         for row in rows {
-                            let course_name = row.course_name.clone().unwrap_or_else(|| "Без курса".to_string());
+                            let course_name = row
+                                .course_name
+                                .clone()
+                                .unwrap_or_else(|| "Без курса".to_string());
                             let student = row.student.unwrap_or_else(|| "".to_string()); // Обработка Option<String>
 
-                            if current_course_name.is_some() && course_name != current_course_name.clone().unwrap_or_default() {
+                            if current_course_name.is_some()
+                                && course_name != current_course_name.clone().unwrap_or_default()
+                            {
                                 courses.push(EnrolledCoursesList {
                                     course_name: current_course_name.clone().unwrap_or_default(),
                                     students: students.clone(),
@@ -795,7 +782,6 @@ async fn enrolled_courses_list_admin(
         Err(_) => HttpResponse::InternalServerError().body("Ошибка при входе"),
     }
 }
-
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
