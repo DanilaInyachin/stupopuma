@@ -619,9 +619,11 @@ async fn unenrolled_courses(
                             .into_iter()
                             .map(|row| UnenrolledCourse {
                                 mail: row.mail.unwrap_or_else(|| "".to_string()),
-                                surname: row.surname.unwrap_or_else(|| "".to_string()),
+
+                                lastname: row.surname.unwrap_or_else(|| "".to_string()),
                                 firstname: row.firstname.unwrap_or_else(|| "".to_string()),
-                                lastname: row.lastname.unwrap_or_else(|| "".to_string()),
+                                surname: row.lastname.unwrap_or_else(|| "".to_string()),
+
                                 course_name: row.course_name.unwrap_or_else(|| "".to_string()),
                             })
                             .collect();
@@ -653,7 +655,7 @@ async fn enrolled_courses_list(
 
     match result {
         Ok(record) => match record.role.as_str() {
-            "Администратор" | "Преподаватель" => {
+            "Преподаватель" => {
                 let enrolled_courses = sqlx::query!(
                     r#"
                     WITH user_id_query AS (
@@ -817,7 +819,7 @@ async fn main() -> std::io::Result<()> {
             .service(unenrolled_courses)
             .service(enrolled_courses_list)
             .service(edit_course)
-            .service(enrolled_courses_list_admin)
+            
             .wrap(
                 Cors::default()
                     .allow_any_origin()
